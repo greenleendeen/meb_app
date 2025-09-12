@@ -1,5 +1,10 @@
-import { startStimulusApp } from '@symfony/stimulus-bundle';
 
-const app = startStimulusApp();
-// register any custom, 3rd party controllers here
-// app.register('some_controller_name', SomeImportedController);
+import { Application } from "stimulus";
+import CalendarController from "./controllers/calendar_controller";
+import FlatpickrController from "./controllers/flatpickr_controller";
+
+const application = Application.start();
+
+// Enregistrement manuel des contrôleurs
+application.register("calendar", CalendarController);
+application.register("flatpickr", FlatpickrController);

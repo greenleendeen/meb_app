@@ -1,0 +1,30 @@
+/* Variables globales (:root)*/
+:root {
+  /* Couleurs principales */
+  --color-primary: #2c5f2d;
+  --color-secondary: #1d411d;
+  --color-success: #198754;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-info: #006884;
+
+  /* Couleurs neutres */
+  --color-dark: #616161; /*content color*/
+  --color-light: #f4f2f0; /* 'talc' ou fffff - blanc background-color*/
+  --color-text: #333;
+
+  /* Typographie */
+ 
+
+  /* Espacements */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 48px;
+
+  /* Bordures */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+}

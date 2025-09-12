@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une intervention
+{% endblock %}
+
+{% block body %}
+	<h1>Formulaire de création d'une intervention</h1>
+
+	<input type="text" data-controller="flatpickr" data-flatpickr-target="input" id="intervention_date" />
+	
+	<ul>
+		<li>
+			<a href="{{ path('app_intervention_index') }}">← Retour à la liste</a>
+		</li>
+
+		<li style="display: inline; margin: 0 15px;">
+			<a href="{{ path('app_home') }}">← Retour à l'accueil</a>
+		</li>
+	</ul>
+
+	{{ form_start(form) }}
+{{ form_row(form.title) }}
+{{ form_row(form.date) }}
+<button type="submit">Enregistrer</button>
+{{ form_end(form) }}
+
+<hr>
+
+<h2>Calendrier</h2>
+<div id="calendar"></div>
+
+{% endblock %}

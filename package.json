@@ -1,0 +1,22 @@
+{
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "sass-embedded": "^1.92.1",
+        "vite": "^6.0",
+        "vite-plugin-symfony": "^8.2"
+    },
+    "dependencies": {
+        "@fullcalendar/core": "^6.1.19",
+        "@fullcalendar/daygrid": "^6.1.19",
+        "@fullcalendar/interaction": "^6.1.19",
+        "@fullcalendar/timegrid": "^6.1.19",
+        "bootstrap": "^5.3.8",
+        "flatpickr": "^4.6.13",
+        "stimulus": "^3.2.2"
+    }
+}

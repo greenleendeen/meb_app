@@ -3,3 +3,9 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+_ignore_wellknown:
+  path: /{req}
+  controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController
+  requirements:
+    req: ".well-known/.*"
