@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Liste des utilisateurs</h1>
+
+    <a href="{{ path('app_user_new') }}"> Ajouter un utilisateur</a>
+
+    <ul>
+        {% for user in users %}
+            <li>
+                {{ user.nom }} ({{ user.identifiant }})
+                - <a href="{{ path('app_user_show', {id: user.id}) }}">Voir</a>
+                - <a href="{{ path('app_user_edit', {id: user.id}) }}">Modifier</a>
+                <form method="post" action="{{ path('app_user_delete', {id: user.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                    <button type="submit">Supprimer</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
