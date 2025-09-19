@@ -27,9 +27,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
-private Collection $roles;
+    #[ORM\JoinTable(name: "user_role")]
+    private Collection $roles;
 
-    // si tu as ta relation ManyToMany User<->Role, tu ajoutes ta collection ici...
+    public function __construct()
+    {
+        $this->roles = new ArrayCollection();
+    }
 
     // --- Getters/Setters ---
     public function getId(): ?int
@@ -82,40 +86,42 @@ private Collection $roles;
     }
 
     /**
- * @return Collection<int, Role>
- */
-public function getRolesEntity(): Collection
-{
-    return $this->roles;
-}
-
-public function addRole(Role $role): static
-{
-    if (!$this->roles->contains($role)) {
-        $this->roles->add($role);
+     * Méthode imposée par UserInterface
+     * Retourne un tableau de strings (noms des rôles).
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles->map(fn(Role $r) => $r->getNom())->toArray();
+        $roles[] = 'ROLE_USER'; // rôle par défaut
+        return array_unique($roles);
     }
 
+    /**
+     * Méthode pour accéder aux entités Role réelles
+     * Utile dans tes formulaires.
+     *
+     * @return Collection<int, Role>
+     */
+    public function getRolesEntities(): Collection
+    {
+        return $this->roles;
+    }
+public function setRolesEntities(Collection $roles): self
+{
+    $this->roles = $roles;
     return $this;
 }
+    public function addRole(Role $role): self
+    {
+        if (!$this->roles->contains($role)) {
+            $this->roles->add($role);
+        }
+        return $this;
+    }
 
-public function removeRole(Role $role): static
-{
-    $this->roles->removeElement($role);
-
-    return $this;
+    public function removeRole(Role $role): self
+    {
+        $this->roles->removeElement($role);
+        return $this;
+    }
 }
-
-public function getRoles(): array
-{
-    $roles = $this->roles->map(fn(Role $r) => $r->getNom())->toArray();
-    $roles[] = 'ROLE_USER'; // rôle par défaut
-    return array_unique($roles);
-}
-
-    public function __construct()
-{
-    $this->roles = new ArrayCollection();
-}
-
-}
-

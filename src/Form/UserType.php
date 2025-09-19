@@ -26,7 +26,8 @@ class UserType extends AbstractType
                 'multiple' => true,     // un user peut avoir plusieurs rôles
                 'expanded' => true,   // cases à cocher au lieu d’un <select>
                 'by_reference' => false, // important pour ManyToMany
-                'property_path' => 'roles', // important
+              // 'property_path' => 'roles', // important
+            'property_path' => 'rolesEntities', // <<< important : lie au getter getRolesEntity()
             ])
         ;
     }
