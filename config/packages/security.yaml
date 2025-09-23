@@ -4,14 +4,36 @@ security:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: identifiant  #login
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
+
+            form_login:
+                login_path: app_login     # route vers le formulaire
+                check_path: app_login     # route POST du formulaire
+                username_parameter: identifiant
+                password_parameter: password
+                enable_csrf: true
+
+            custom_authenticator: App\Security\LoginFormAuthenticator
+            entry_point: App\Security\LoginFormAuthenticator
+
+            logout:
+                path: app_logout
+                target: /
+
+           # custom_authenticators:
+            #    - App\Security\LoginFormAuthenticator
+                # where to redirect after logout
+                # target: app_any_route
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -22,8 +44,12 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/login, roles: PUBLIC_ACCESS }  # login accessible à tous
+        - { path: ^/home, roles: PUBLIC_ACCESS }
+        - { path: ^/super, roles: ROLE_SUPER_ADMIN } # section super admin
+        - { path: ^/admin, roles: ROLE_ADMIN }   # dashboard admin
+        - { path: ^/tech, roles: ROLE_TECHNICIEN }  # espace technicien
+        - { path: ^/, roles: ROLE_USER }  # user connecté
 
 when@test:
     security:
@@ -32,8 +58,13 @@ when@test:
             # important to generate secure password hashes. In tests however, secure hashes
             # are not important, waste resources and increase test times. The following
             # reduces the work factor to the lowest possible values.
-            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+            App\Entity\User:
                 algorithm: auto
                 cost: 4 # Lowest possible value for bcrypt
                 time_cost: 3 # Lowest possible value for argon
                 memory_cost: 10 # Lowest possible value for argon
+
+        role_hierarchy:
+            ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_TECHNICIEN, ROLE_USER]
+            ROLE_ADMIN: [ROLE_TECHNICIEN, ROLE_USER]
+            ROLE_TECHNICIEN: [ROLE_USER]

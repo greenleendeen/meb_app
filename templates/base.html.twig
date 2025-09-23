@@ -9,7 +9,36 @@
     {% endblock %}
 </head>
 <body>
-    {% block body %}{% endblock %}
+    <nav>
+        <ul>
+            {% if app.user %}
+                <li><a href="{{ path('app_home') }}">Accueil</a></li>
+
+                {# --- SUPER ADMIN --- #}
+                {% if is_granted('ROLE_SUPER_ADMIN') %}
+                    <li><a href="{{ path('super_dashboard') }}">Super Admin</a></li>
+                {% endif %}
+
+                {# --- ADMIN (hérite aussi de TECH et USER) --- #}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li><a href="{{ path('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+
+                {# --- TECHNICIEN --- #}
+                {% if is_granted('ROLE_TECHNICIEN') %}
+                    <li><a href="{{ path('tech_dashboard') }}">Technicien</a></li>
+                {% endif %}
+
+                <li><a href="{{ path('app_logout') }}">Déconnexion</a></li>
+            {% else %}
+                <li><a href="{{ path('app_login') }}">Connexion</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+       <main>
+        {% block body %}{% endblock %}
+    </main>
 
     {% block javascripts %}
         {{ vite_entry_script_tags('app') }}
