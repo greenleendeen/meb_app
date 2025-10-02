@@ -1,17 +1,41 @@
 /* Variables globales (:root)*/
 :root {
+
+  // Identité
+$color-primary: #2C5F2D;   // Vert mousse
+$color-primary-dark: #1D411D; // Hover / accent
+
+// Accent & complément
+$color-secondary: #006884; // Bleu canard
+$color-accent: #F35712;    // Orange
+
+// Neutres
+$color-light: #F4F2F0;     // Talc
+$color-dark: #333333;      // Texte fort
+
+// Statuts
+$color-success: $color-primary-dark;
+$color-warning: $color-accent;
+$color-danger: #B22222;    // Rouge brique
+$color-info: $color-secondary;
+
+
   /* Couleurs principales */
-  --color-primary: #2c5f2d;
-  --color-secondary: #1d411d;
-  --color-success: #198754;
-  --color-danger: #dc3545;
-  --color-warning: #ffc107;
-  --color-info: #006884;
+/*$color-primary:   #003366; // bleu sérieux (barre latérale, header)
+$color-secondary: #0066cc; // bleu clair pour accents et hover
+$color-success:   #28a745; // vert = tache validée
+$color-warning:   #ff9900; // orange = retard léger
+$color-danger:    #cc0000; // rouge = erreur, annulation
+$color-info:      #17a2b8; // bleu turquoise pour infos
+
+$color-light:     #f8f9fa; // fond clair (background principal)
+$color-dark:      #212529; // texte principal
+$color-gray:      #6c757d; // texte secondaire*/
 
   /* Couleurs neutres */
-  --color-dark: #616161; /*content color*/
-  --color-light: #f4f2f0; /* 'talc' ou fffff - blanc background-color*/
-  --color-text: #333;
+  /*--color-dark: #616161; /*content color*/
+  /*--color-light: #f4f2f0; /* 'talc' ou fffff - blanc background-color*/
+ /* --color-text: #333;
 
   /* Typographie */
  

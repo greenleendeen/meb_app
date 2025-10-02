@@ -12,6 +12,11 @@
 
 
 <h1>Bienvenue, Super Admin !</h1>
-<p>Vous avez tous les droits.</p>
+
+{% if is_granted('ROLE_SUPER_ADMIN') %}
+    <a href="{{ path('app_user_index') }}" class="btn btn-primary">
+        Gérer les utilisateurs
+    </a>
+{% endif %}
 
 {% endblock %}

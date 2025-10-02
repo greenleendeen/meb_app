@@ -9,10 +9,19 @@
 }
 
 .btn-primary {
-  background-color: var(--color-primary);
+  background-color: #2C5F2D;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: var(--color-secondary);
+  background-color: darken( #4ba54d, 10%);
 }
+/*
+.btn-warning {
+  background-color: var(--color-accent);
+  border: none;
+}
+
+.btn-warning:hover {
+  background-color: var(--color-accent-hover);
+}*/
