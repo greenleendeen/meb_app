@@ -1,0 +1,44 @@
+.table-custom.table-hover > tbody > tr:hover > * {
+  --bs-table-color-state: var(--color-dark); // couleur texte au hover
+  --bs-table-bg-state: rgba(44, 95, 45, 0.1); // vert mousse transparent
+
+  thead {
+    background-color: var(--color-primary); // vert mousse
+    color: #fff;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(44, 95, 45, 0.05); // hover léger en vert
+  }
+
+  td, th {
+    vertical-align: middle;
+  }
+
+  .btn-info {
+    background-color: var(--color-secondary); // bleu canard
+    border: none;
+
+    &:hover {
+      background-color: darken(red, 10%);
+    }
+  }
+
+  .btn-warning {
+    background-color: var(--color-accent); // orange contraste
+    border: none;
+
+    &:hover {
+      background-color: darken(rgb(188, 188, 245), 10%);
+    }
+  }
+
+  .btn-danger {
+    background-color: var(--color-danger); // rouge brique
+    border: none;
+
+    &:hover {
+      background-color: darken(orange, 10%);
+    }
+  }
+}
