@@ -23,6 +23,20 @@ class Document
     #[ORM\Column(enumType: DocumentType::class, nullable: false)]
 private ?DocumentType $type = null;
 
+    #[ORM\ManyToOne(inversedBy: 'documents')]
+    private ?Intervention $intervention = null;
+
+    public function getIntervention(): ?Intervention
+{
+    return $this->intervention;
+}
+
+public function setIntervention(?Intervention $intervention): static
+{
+    $this->intervention = $intervention;
+    return $this;
+}
+
 public function getType(): ?DocumentType
 {
     return $this->type;
@@ -74,4 +88,6 @@ public function setType(?DocumentType $type): static
         DocumentType::FACTURE => 'Facture',
     };
 }
+
+  
 }

@@ -1,13 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Document{% endblock %}
-
 {% block body %}
-    <h1>Edit Document</h1>
+<h1>Compléter les informations du document</h1>
 
-    {{ include('document/_form.html.twig', {'button_label': 'Update'}) }}
+<div style="display:flex; gap:2rem;">
+    <div style="flex:1;">
+        {{ form_start(form) }}
+            {{ form_row(form.clientNom) }}
+            {{ form_row(form.reference) }}
+            {{ form_row(form.adresse) }}
+            {{ form_row(form.demande) }}
+            {{ form_row(form.detail) }}
+            <button class="btn btn-primary">Enregistrer</button>
+        {{ form_end(form) }}
+    </div>
 
-    <a href="{{ path('app_document_index') }}">back to list</a>
-
-    {{ include('document/_delete_form.html.twig') }}
+    <div style="flex:1;">
+        <h4>Prévisualisation du PDF</h4>
+        <embed src="{{ asset('uploads/documents/' ~ document.filename) }}" 
+               type="application/pdf" width="100%" height="600px" />
+    </div>
+</div>
 {% endblock %}

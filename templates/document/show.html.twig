@@ -1,37 +1,41 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Document{% endblock %}
+{% block title %}Détail du document{% endblock %}
 
 {% block body %}
-    <h1>Document</h1>
+<div class="container mt-4">
+    <h1>Détails du document</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ document.id }}</td>
-            </tr>
-            <tr>
-                <th>Filename</th>
-                <td>{{ document.filename }}</td>
-            </tr>
-            <tr>
-                <th>Path</th>
-                <td>{{ document.path }}</td>
-            </tr>
-            <tr>
-                <th>Type</th>
-                <td>{{ document.type.value }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="card p-4 shadow-sm mb-3">
+        <h5>📄 Informations du document</h5>
+        <p><strong>Nom :</strong> {{ document.filename }}</p>
+        <p><strong>Type :</strong> {{ document.typeLabel }}</p>
+        <p><strong>Chemin :</strong> {{ document.path }}</p>
 
-    <p>Type : {{ document.typeLabel }}</p> 
-    <iframe src="{{ asset(document.path) }}" width="800" height="600"></iframe>
-    <img src="{{ asset(document.path) }}" alt="{{ document.filename }}" style="max-width: 500px;">
-    <a href="{{ path('app_document_index') }}">back to list</a>
+        {% if document.path ends with '.pdf' %}
+            <a href="{{ asset(document.path) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                Voir le PDF
+            </a>
+        {% elseif document.path matches '/\.(jpg|jpeg|png|gif)$/i' %}
+            <img src="{{ asset(document.path) }}" alt="aperçu document" class="img-fluid mt-2 rounded shadow-sm" />
+        {% endif %}
+    </div>
 
-    <a href="{{ path('app_document_edit', {'id': document.id}) }}">edit</a>
+    {% if document.intervention %}
+        <div class="card p-4 shadow-sm">
+            <h5>🛠 Intervention associée</h5>
+            <p><strong>Client :</strong> {{ document.intervention.clientNom }}</p>
+            <p><strong>Adresse :</strong> {{ document.intervention.adresse }}</p>
+            <p><strong>Référence :</strong> {{ document.intervention.reference }}</p>
+            <p><strong>Demande :</strong> {{ document.intervention.demande }}</p>
+            <p><strong>Détail :</strong> {{ document.intervention.detail }}</p>
+        </div>
+    {% else %}
+        <div class="alert alert-warning mt-3">
+            Ce document n’est pas encore lié à une intervention.
+        </div>
+    {% endif %}
 
-    {{ include('document/_delete_form.html.twig') }}
+    <a href="{{ path('app_document_index') }}" class="btn btn-secondary mt-3">⬅ Retour</a>
+</div>
 {% endblock %}

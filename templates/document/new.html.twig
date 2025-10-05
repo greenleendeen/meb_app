@@ -1,11 +1,111 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Document{% endblock %}
+{% block title %}Nouveau document{% endblock %}
 
 {% block body %}
-    <h1>Create new Document</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">Importer un nouveau document</h1>
 
-    {{ include('document/_form.html.twig') }}
+    <div class="row">
+        <!-- Colonne gauche : formulaire Intervention -->
+        <div class="col-md-6">
+            <h3>Infos Intervention</h3>
+            {{ form_start(interventionForm, {'attr': {'id': 'intervention_form'}}) }}
 
-    <a href="{{ path('app_document_index') }}">back to list</a>
+            {{ form_row(interventionForm.clientNom) }}
+            {{ form_row(interventionForm.reference) }}
+            {{ form_row(interventionForm.adresse) }}
+            {{ form_row(interventionForm.demande) }}
+            {{ form_row(interventionForm.detail) }}
+
+            <button type="submit" class="btn btn-primary mt-3" id="save_intervention" disabled>Enregistrer Intervention</button>
+
+            {{ form_end(interventionForm) }}
+        </div>
+
+        <!-- Colonne droite : upload PDF et aperçu -->
+        <div class="col-md-6">
+            <h3>Upload Document</h3>
+            {{ form_start(documentForm, {'attr': {'id': 'document_upload_form'}}) }}
+            {{ form_row(documentForm.filename) }}
+            {{ form_row(documentForm.type) }}
+            <button type="submit" class="btn btn-secondary mt-2" id="upload_pdf">Upload PDF</button>
+            {{ form_end(documentForm) }}
+
+            <h5 class="mt-4">Aperçu du PDF</h5>
+            <iframe id="pdfPreview" src="{{ document.path ?? '' }}" style="width:100%; height:500px; border:1px solid #ccc;" {% if not document.path %}hidden{% endif %}></iframe>
+
+            <p class="text-muted fst-italic mt-2">
+                Sélectionnez le texte dans le PDF et utilisez les boutons ci-dessous pour remplir les champs.
+            </p>
+
+            <!-- Boutons pour capturer le texte sélectionné -->
+            <button type="button" class="btn btn-outline-info mt-1 captureText" data-target="clientNom">Sélectionner Client</button>
+            <button type="button" class="btn btn-outline-info mt-1 captureText" data-target="adresse">Sélectionner Adresse</button>
+            <button type="button" class="btn btn-outline-info mt-1 captureText" data-target="demande">Sélectionner Demande</button>
+            <button type="button" class="btn btn-outline-info mt-1 captureText" data-target="detail">Sélectionner Détail</button>
+        </div>
+    </div>
+</div>
+
+<!-- Inputs cachés pour stocker le texte sélectionné -->
+<input type="" id="clientNom" name="clientNom">
+<input type="" id="adresse" name="adresse">
+<input type="" id="demande" name="demande">
+<input type="" id="detail" name="detail">
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadForm = document.querySelector('#document_upload_form');
+    const iframe = document.querySelector('#pdfPreview');
+    const saveBtn = document.querySelector('#save_intervention');
+
+    // Upload PDF via AJAX
+    uploadForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const formData = new FormData(uploadForm);
+
+        try {
+            const response = await fetch('{{ path("app_document_upload") }}', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                iframe.src = data.path;
+                iframe.hidden = false;
+
+                // Stocker l'ID du document dans un champ caché du formulaire Intervention
+                let hiddenInput = document.createElement('input');
+                hiddenInput.type = '';
+                hiddenInput.name = 'document_id';
+                hiddenInput.value = data.id;
+                document.querySelector('#intervention_form').appendChild(hiddenInput);
+
+                saveBtn.disabled = false; // Activer le bouton Enregistrer
+                console.log('Document uploadé :', data);
+            } else {
+                console.error('Erreur upload :', data.errors);
+            }
+        } catch (err) {
+            console.error('Erreur fetch :', err);
+        }
+    });
+
+    // Capturer le texte sélectionné depuis le PDF
+    const captureButtons = document.querySelectorAll('.captureText');
+    captureButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const selectedText = window.getSelection().toString();
+            if (selectedText) {
+                const targetId = btn.dataset.target;
+                const input = document.getElementById(targetId);
+                input.value = selectedText;
+                alert(`Texte sélectionné pour ${targetId} : ${selectedText}`);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
