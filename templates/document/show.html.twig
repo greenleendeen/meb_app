@@ -3,7 +3,7 @@
 {% block title %}Détail du document{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
+<div class="container mt-4 p-4 bg-white rounded-xl shadow">
     <h1>Détails du document</h1>
 
     <div class="card p-4 shadow-sm mb-3">
@@ -35,6 +35,8 @@
             Ce document n’est pas encore lié à une intervention.
         </div>
     {% endif %}
+
+
 
     <a href="{{ path('app_document_index') }}" class="btn btn-secondary mt-3">⬅ Retour</a>
 </div>

@@ -1,5 +1,21 @@
 <?php
+/**
+ * Form Type: DocumentType
+ * ---------------------------------------------------------------------
+ * Ce formulaire permet de créer ou modifier un document.
+ *
+ * Champs :
+ *  - filename: le nom du fichier
+ *  - type : le type de fichier: commande, devis, facture etc
+ *
+ * Utilisation :
+ *  - Utilisé dans le contrôleur DocumentController (méthodes new/edit/show/ upload)
+ *  - Relié à l'entité App\Entity\Document
+ *
+ * Objectif :
+ *  Le telechargement, la saisie et la mise à jour des données des documents attaches à des missions traitées dans l'appli.
 
+ */
 namespace App\Form;
 
 use App\Entity\Document;

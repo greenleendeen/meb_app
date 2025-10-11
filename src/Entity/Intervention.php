@@ -32,17 +32,25 @@ class Intervention
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $detail = null;
 
-   /**
+   #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'])]
+private Collection $compteRendus;
+
+public function __construct()
+{
+    $this->compteRendus = new ArrayCollection();
+    $this->documents = new ArrayCollection();
+}
+
+public function getCompteRendus(): Collection
+{
+    return $this->compteRendus;
+} 
+
+ /**
  * @var Collection<int, Document>
  */
 #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'intervention', cascade: ['persist', 'remove'])]
 private Collection $documents; // <- nom au pluriel
-
-
-public function __construct()
-{
-    $this->documents = new ArrayCollection();
-}
 
 public function getId(): ?int
 {

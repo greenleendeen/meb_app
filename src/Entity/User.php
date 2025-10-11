@@ -8,6 +8,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\CompteRendu;
+use App\Entity\Role;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -26,12 +28,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    // --- Relation vers les comptes rendus ---
+    #[ORM\OneToMany(mappedBy: 'technicien', targetEntity: CompteRendu::class)]
+    private Collection $compteRendus;
+
+    // --- Relation ManyToMany vers Role (si nécessaire pour gérer roles personnalisés) ---
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
-private Collection $roles;
+    private Collection $roles;
 
-    // si tu as ta relation ManyToMany User<->Role, tu ajoutes ta collection ici...
+    public function __construct()
+    {
+        $this->compteRendus = new ArrayCollection();
+        $this->roles = new ArrayCollection();
+    }
 
-    // --- Getters/Setters ---
+    // --- Getters / Setters principaux ---
     public function getId(): ?int
     {
         return $this->id;
@@ -70,52 +81,72 @@ private Collection $roles;
         return $this;
     }
 
-    // --- Méthodes imposées par UserInterface ---
+    // --- Méthodes Symfony Security ---
     public function getUserIdentifier(): string
     {
-        return (string) $this->identifiant; // utilisé pour la connexion
+        return (string) $this->identifiant;
     }
 
     public function eraseCredentials(): void
     {
-        // si tu stockes des infos sensibles en clair, nettoie-les ici
+        // pas d'info sensible à effacer ici
     }
 
+    // --- Comptes rendus ---
     /**
- * @return Collection<int, Role>
- */
-public function getRolesEntity(): Collection
-{
-    return $this->roles;
-}
-
-public function addRole(Role $role): static
-{
-    if (!$this->roles->contains($role)) {
-        $this->roles->add($role);
+     * @return Collection<int, CompteRendu>
+     */
+    public function getCompteRendus(): Collection
+    {
+        return $this->compteRendus;
     }
 
-    return $this;
+    public function addCompteRendu(CompteRendu $compteRendu): static
+    {
+        if (!$this->compteRendus->contains($compteRendu)) {
+            $this->compteRendus->add($compteRendu);
+            $compteRendu->setTechnicien($this);
+        }
+        return $this;
+    }
+
+    public function removeCompteRendu(CompteRendu $compteRendu): static
+    {
+        if ($this->compteRendus->removeElement($compteRendu)) {
+            if ($compteRendu->getTechnicien() === $this) {
+                $compteRendu->setTechnicien(null);
+            }
+        }
+        return $this;
+    }
+
+    // --- Roles (ManyToMany) ---
+    /**
+     * @return Collection<int, Role>
+     */
+    public function getRolesEntity(): Collection
+    {
+        return $this->roles;
+    }
+
+    public function addRole(Role $role): static
+    {
+        if (!$this->roles->contains($role)) {
+            $this->roles->add($role);
+        }
+        return $this;
+    }
+
+    public function removeRole(Role $role): static
+    {
+        $this->roles->removeElement($role);
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles->map(fn(Role $r) => $r->getNom())->toArray();
+        $roles[] = 'ROLE_USER'; // rôle par défaut
+        return array_unique($roles);
+    }
 }
-
-public function removeRole(Role $role): static
-{
-    $this->roles->removeElement($role);
-
-    return $this;
-}
-
-public function getRoles(): array
-{
-    $roles = $this->roles->map(fn(Role $r) => $r->getNom())->toArray();
-    $roles[] = 'ROLE_USER'; // rôle par défaut
-    return array_unique($roles);
-}
-
-    public function __construct()
-{
-    $this->roles = new ArrayCollection();
-}
-
-}
-

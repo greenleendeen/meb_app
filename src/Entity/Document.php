@@ -23,6 +23,9 @@ class Document
     #[ORM\Column(enumType: DocumentType::class, nullable: false)]
 private ?DocumentType $type = null;
 
+#[ORM\ManyToOne(inversedBy: 'documents')]
+private ?CompteRendu $compteRendu = null;
+
     #[ORM\ManyToOne(inversedBy: 'documents')]
     private ?Intervention $intervention = null;
 

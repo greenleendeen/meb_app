@@ -5,6 +5,7 @@
 {% block body %}
     <h1>Document index</h1>
 
+  <a class= "btn btn-primary" href="{{ path('app_document_new') }}">Créer un nouveau document</a>
     <table class="table">
         <thead>
             <tr>
@@ -22,8 +23,8 @@
                 <td>{{ document.filename }}</td>
                 <td>{{ document.path }}</td>
                 <td>{{ document.type.value }}</td>
-                    <iframe src="{{ asset(document.path) }}" width="800" height="600"></iframe>
-    <img src="{{ asset(document.path) }}" alt="{{ document.filename }}" style="max-width: 500px;">
+                <!--    <iframe src="{{ asset(document.path) }}" width="800" height="600"></iframe>
+    <img src="{{ asset(document.path) }}" alt="{{ document.filename }}" style="max-width: 500px;"> -->
                 <td>
                     <a href="{{ path('app_document_show', {'id': document.id}) }}">show</a>
                     <a href="{{ path('app_document_edit', {'id': document.id}) }}">edit</a>
@@ -37,5 +38,5 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_document_new') }}">Create new</a>
+  
 {% endblock %}
