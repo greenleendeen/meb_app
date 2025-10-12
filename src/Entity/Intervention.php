@@ -32,8 +32,8 @@ class Intervention
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $detail = null;
 
-   #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'])]
-private Collection $compteRendus;
+#[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'])]
+private Collection $compteRendus; // pluriel
 
 public function __construct()
 {
@@ -41,10 +41,32 @@ public function __construct()
     $this->documents = new ArrayCollection();
 }
 
+/**
+ * @return Collection<int, CompteRendu>
+ */
 public function getCompteRendus(): Collection
 {
     return $this->compteRendus;
-} 
+}
+
+public function addCompteRendu(CompteRendu $compteRendu): static
+{
+    if (!$this->compteRendus->contains($compteRendu)) {
+        $this->compteRendus->add($compteRendu);
+        $compteRendu->setIntervention($this);
+    }
+    return $this;
+}
+
+public function removeCompteRendu(CompteRendu $compteRendu): static
+{
+    if ($this->compteRendus->removeElement($compteRendu)) {
+        if ($compteRendu->getIntervention() === $this) {
+            $compteRendu->setIntervention(null);
+        }
+    }
+    return $this;
+}
 
  /**
  * @var Collection<int, Document>

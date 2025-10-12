@@ -13,18 +13,11 @@
 
     {{ form_start(form) }}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {{ form_row(form.title, {'label': 'Titre de l’intervention'}) }}
-            {{ form_row(form.date, {
-                'label': 'Date et heure',
-                'attr': {
-                    'data-controller': 'flatpickr',
-                    'data-flatpickr-target': 'input',
-                    'class': 'form-control'
-                }
-            }) }}
-            {{ form_row(form.client, {'label': 'Client concerné'}) }}
-            {{ form_row(form.travaux, {'label': 'Travaux à réaliser'}) }}
-            {{ form_row(form.details, {'label': 'Détails complémentaires'}) }}
+            {{ form_row(form.reference, {'label': 'Titre de l’intervention'}) }}
+     <!-- ici j'ai supprimé le form data -->
+            {{ form_row(form.clientNom, {'label': 'Client concerné'}) }}
+            {{ form_row(form.demande, {'label': 'Travaux à réaliser'}) }}
+            {{ form_row(form.detail, {'label': 'Détails complémentaires'}) }}
         </div>
 
         <div class="mt-6">

@@ -30,7 +30,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // --- Relation vers les comptes rendus ---
     #[ORM\OneToMany(mappedBy: 'technicien', targetEntity: CompteRendu::class)]
-    private Collection $compteRendus;
+    private Collection $compteRendu;
 
     // --- Relation ManyToMany vers Role (si nécessaire pour gérer roles personnalisés) ---
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
@@ -38,7 +38,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->compteRendus = new ArrayCollection();
+        $this->compteRendu = new ArrayCollection();
         $this->roles = new ArrayCollection();
     }
 
@@ -98,13 +98,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getCompteRendus(): Collection
     {
-        return $this->compteRendus;
+        return $this->compteRendu;
     }
 
     public function addCompteRendu(CompteRendu $compteRendu): static
     {
-        if (!$this->compteRendus->contains($compteRendu)) {
-            $this->compteRendus->add($compteRendu);
+        if (!$this->compteRendu->contains($compteRendu)) {
+            $this->compteRendu->add($compteRendu);
             $compteRendu->setTechnicien($this);
         }
         return $this;
@@ -112,7 +112,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeCompteRendu(CompteRendu $compteRendu): static
     {
-        if ($this->compteRendus->removeElement($compteRendu)) {
+        if ($this->compteRendu->removeElement($compteRendu)) {
             if ($compteRendu->getTechnicien() === $this) {
                 $compteRendu->setTechnicien(null);
             }

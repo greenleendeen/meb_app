@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Form Type: InterventionType
  * ---------------------------------------------------------------------
@@ -20,6 +21,7 @@
  *  Faciliter la saisie et la mise à jour des données d'intervention.
 
  */
+
 namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
@@ -36,22 +38,19 @@ class InterventionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-          //  ->add('title', TextType::class, ['label' => 'Titre', ])
+            //  ->add('title', TextType::class, ['label' => 'Titre', ])
             ->add('clientNom', TextType::class, ['required' => false])
             ->add('reference', TextType::class, ['required' => false])
             ->add('adresse', TextType::class, ['required' => false])
             ->add('demande', TextareaType::class, ['required' => false])
-            ->add('detail', TextareaType::class, ['required' => false])
+            ->add('detail', TextareaType::class, ['required' => false]);
 
 
-            ->add('compteRendu', TextareaType::class, [
-    'required' => false,
-    'label' => 'Compte rendu du technicien',
-            ]);
-           // ->add('title', TextType::class, ['label' => 'Titre'])
-          //  ->add('date', DateTimeType::class, [
-          //      'label' => 'Date',
-          //      'widget' => 'single_text',
+
+        // ->add('title', TextType::class, ['label' => 'Titre'])
+        //  ->add('date', DateTimeType::class, [
+        //      'label' => 'Date',
+        //      'widget' => 'single_text',
         //    ]);
     }
 

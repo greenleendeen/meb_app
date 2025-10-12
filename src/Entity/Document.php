@@ -23,8 +23,20 @@ class Document
     #[ORM\Column(enumType: DocumentType::class, nullable: false)]
 private ?DocumentType $type = null;
 
+// relation ManyToOne vers CompteRendu (pour lier un document à un compte-rendu)
 #[ORM\ManyToOne(inversedBy: 'documents')]
 private ?CompteRendu $compteRendu = null;
+
+public function getCompteRendu(): ?CompteRendu
+{
+    return $this->compteRendu;
+}
+
+public function setCompteRendu(?CompteRendu $compteRendu): static
+{
+    $this->compteRendu = $compteRendu;
+    return $this;
+}
 
     #[ORM\ManyToOne(inversedBy: 'documents')]
     private ?Intervention $intervention = null;

@@ -5,6 +5,60 @@
 {% block body %}
     <h1>Liste des interventions en cours</h1>
 
-    <a href="{{ path('app_intervention_create') }}">Créer une nouvelle intervention</a>
+    <a class= "btn btn-primary" href="{{ path('app_intervention_new') }}">Créer une nouvelle intervention</a>
+    <table class="table">
+
+    <h1>Liste des interventions</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Référence</th>
+                <th>Adresse</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for intervention in interventions %}
+            <tr>
+                <td>{{ intervention.id }}</td>
+                <td>{{ intervention.clientNom }}</td>
+                <td>{{ intervention.reference }}</td>
+                <td>{{ intervention.adresse }}</td>
+                <td>
+                    <a href="{{ path('app_intervention_show', {'id': intervention.id}) }}">Voir</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">Aucune intervention trouvée.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% for intervention in interventions %}
+  <h3>{{ intervention.clientNom }}</h3>
+  <p>{{ intervention.reference }}</p>
+
+  <h4>Documents liés :</h4>
+  <ul>
+    {% for doc in intervention.documents %}
+      <li>
+        <a href="{{ asset('uploads/' ~ doc.filename) }}" target="_blank">
+          {{ doc.filename }}
+        </a>
+      </li>
+    {% else %}
+      <li>Aucun document lié.</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Aucune intervention trouvée.</p>
+{% endfor %}
+
 {% endblock %}
 

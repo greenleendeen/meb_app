@@ -3,14 +3,15 @@
 {% block body %}
 <h1>Compléter les informations du document</h1>
 
+    <a class= "btn btn-primary" href="{{ path('app_intervention_new') }}">Créer une nouvelle intervention</a>
+    <table class="table">
+
 <div style="display:flex; gap:2rem;">
     <div style="flex:1;">
         {{ form_start(form) }}
-            {{ form_row(form.clientNom) }}
-            {{ form_row(form.reference) }}
-            {{ form_row(form.adresse) }}
-            {{ form_row(form.demande) }}
-            {{ form_row(form.detail) }}
+    {{ form_row(form.filename) }}
+    {{ form_row(form.type) }}
+    {{ form_row(form.intervention) }}
             <button class="btn btn-primary">Enregistrer</button>
         {{ form_end(form) }}
     </div>

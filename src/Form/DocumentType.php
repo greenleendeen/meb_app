@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Form Type: DocumentType
  * ---------------------------------------------------------------------
@@ -16,6 +17,7 @@
  *  Le telechargement, la saisie et la mise à jour des données des documents attaches à des missions traitées dans l'appli.
 
  */
+
 namespace App\Form;
 
 use App\Entity\Document;
@@ -25,7 +27,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
+use App\Entity\Intervention; 
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
@@ -34,11 +37,13 @@ class DocumentType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-         $builder
+        $builder
+
+
             // Champ pour le fichier PDF / PJ
             ->add('filename', FileType::class, [
                 'label' => 'Fichier PDF ou image',
-                'mapped' => false, // ⚠️ Ne pas mapper pour éviter les erreurs d’upload
+                'mapped' => false, // Ne pas mapper pour éviter les erreurs d’upload
                 'required' => true,
             ])
             ->add('type', ChoiceType::class, [
@@ -48,7 +53,13 @@ class DocumentType extends AbstractType
                 'choice_label' => fn(?DocumentEnum $choice) => $choice?->value,
                 'required' => false,
             ])
-            ;
+
+                ->add('intervention', EntityType::class, [
+        'class' => Intervention::class,
+        'choice_label' => 'reference', // ou un autre champ
+    ])
+
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
