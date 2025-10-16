@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+{% block title %}Détails de l'intervention{% endblock %}
+
+{% block body %}
+<div class="container mt-4 p-4 bg-white rounded-xl shadow">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h1>Détails de l'intervention</h1>
+        <a href="#" onclick="window.print()" class="btn btn-outline-primary">
+            🖨️ Imprimer / PDF
+        </a>
+    </div>
+
+    <!-- Informations principales -->
+    <div class="card p-4 shadow-sm mb-4">
+        <h5>📋 Informations générales</h5>
+        <p><strong>Référence :</strong> {{ intervention.reference }}</p>
+        <p><strong>Client :</strong> {{ intervention.clientNom }}</p>
+        <p><strong>Adresse :</strong> {{ intervention.adresse }}</p>
+        <p><strong>Demande :</strong> {{ intervention.demande }}</p>
+    </div>
+
+    <!-- Compte rendu -->
+    <div class="card p-4 shadow-sm mb-4">
+        <h5>📝 Compte rendu / Détails</h5>
+        <div style="min-height:120mm; border:1px solid #ccc; padding:10px; overflow:auto;">
+            {% if intervention.detail %}
+                <p style="white-space: pre-wrap;">{{ intervention.detail }}</p>
+            {% else %}
+                <div class="text-muted fst-italic">
+                    <p>Espace réservé pour le compte rendu manuscrit ou saisi sur tablette.</p>
+                    <p style="color:#999;">(Ce champ sera imprimé vide sur la version PDF)</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Documents liés -->
+    <div class="card p-4 shadow-sm">
+        <h5>📎 Documents liés</h5>
+
+        {% if documents|length > 0 %}
+            <div class="row">
+                {% for document in documents %}
+                    <div class="col-md-6 mb-3">
+                        <div style="max-height:100mm; overflow:hidden; border:1px solid #ddd; border-radius:6px;">
+                            <iframe
+                                src="{{ asset('uploads/documents/' ~ document.filename) }}"
+                                width="100%"
+                                height="200"
+                                style="border:none;">
+                            </iframe>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted fst-italic">Aucun document lié à cette intervention.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

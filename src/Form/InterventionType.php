@@ -32,6 +32,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use App\Entity\Intervention;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType; // <-- IMPORTANT
+use App\Form\DocumentType; // importer le DocumentType 
 
 class InterventionType extends AbstractType
 {
@@ -43,7 +45,16 @@ class InterventionType extends AbstractType
             ->add('reference', TextType::class, ['required' => false])
             ->add('adresse', TextType::class, ['required' => false])
             ->add('demande', TextareaType::class, ['required' => false])
-            ->add('detail', TextareaType::class, ['required' => false]);
+            ->add('detail', TextareaType::class, ['required' => false])
+
+            ->add('documents', CollectionType::class, [
+                'entry_type' => DocumentType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true, // utile si tu veux ajouter dynamiquement via JS
+                'label' => 'Documents associés',
+            ]);
 
 
 
@@ -57,7 +68,7 @@ class InterventionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => \App\Entity\Intervention::class,
+            'data_class' => Intervention::class, //'data_class' => \App\Entity\Intervention::clas, ->le nom de classe complet (FQCN — Fully Qualified Class Name),
         ]);
     }
 }

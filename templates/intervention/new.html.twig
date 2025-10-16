@@ -1,33 +1,122 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer une intervention{% endblock %}
+{% block title %}Nouvelle intervention
+{% endblock %}
 
 {% block body %}
-<div class="container mx-auto mt-4 p-4 bg-white rounded-xl shadow">
-    <h1 class="text-2xl font-bold mb-4">Planifier une nouvelle intervention</h1>
+	<div class="container my-4">
+		<h1 class="mb-4">Créer une nouvelle intervention</h1>
 
-    <div class="mb-4">
-        <a href="{{ path('app_intervention_index') }}" class="btn btn-secondary">← Retour à la liste</a>
-        <a href="{{ path('app_home') }}" class="btn btn-light ml-2">Accueil</a>
+		{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+		<div
+			class="row g-4">
+			<!-- Colonne gauche : infos intervention -->
+			<div class="col-md-6">
+				<div class="card shadow-sm p-3">
+					<h4 class="mb-3">Informations principales</h4>
+					{{ form_row(form.clientNom) }}
+					{{ form_row(form.reference) }}
+					{{ form_row(form.adresse) }}
+					{{ form_row(form.demande) }}
+					{{ form_row(form.detail) }}
+				</div>
+			</div>
+
+			<!-- Colonne droite : documents -->
+			<div class="col-md-6">
+				<div class="card shadow-sm p-3">
+					<h4 class="mb-3">Documents associés</h4>
+
+					<div id="documents-wrapper" data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}">
+						{% for docForm in form.documents %}
+							<div class="document-item border rounded p-3 mb-3">
+								{{ form_row(docForm.file) }}
+								{{ form_row(docForm.type) }}
+
+								<div class="preview mt-2">
+									<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
+								</div>
+
+								<button type="button" class="btn btn-outline-danger btn-sm remove-document">
+									Supprimer
+								</button>
+							</div>
+						{% endfor %}
+					</div>
+
+					<button type="button" id="add-document" class="btn btn-outline-secondary mt-2">
+						+ Ajouter un document
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-4 text-end">
+			<button type="submit" class="btn btn-primary">Enregistrer l’intervention</button>
+		</div>
+
+		{{ form_end(form) }}
+	</div>
+
+	<script>
+		// === JS pour ajouter/supprimer des documents dynamiquement ===
+
+const collectionHolder = document.getElementById('documents-wrapper');
+const addButton = document.getElementById('add-document');
+collectionHolder.dataset.index = collectionHolder.querySelectorAll('.document-item').length;
+
+addButton.addEventListener('click', () => {
+const prototype = collectionHolder.dataset.prototype;
+const index = collectionHolder.dataset.index;
+const newForm = prototype.replace(/__name__/g, index);
+collectionHolder.dataset.index ++;
+
+const item = document.createElement('div');
+item.classList.add('document-item', 'border', 'rounded', 'p-3', 'mb-3');
+item.innerHTML = newForm + `
+            <div class="preview mt-2">
+        <p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
     </div>
 
-    {{ form_start(form) }}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {{ form_row(form.reference, {'label': 'Titre de l’intervention'}) }}
-     <!-- ici j'ai supprimé le form data -->
-            {{ form_row(form.clientNom, {'label': 'Client concerné'}) }}
-            {{ form_row(form.demande, {'label': 'Travaux à réaliser'}) }}
-            {{ form_row(form.detail, {'label': 'Détails complémentaires'}) }}
-        </div>
+        <button type="button" class="btn btn-outline-danger btn-sm remove-document">
+            Supprimer
+        </button>`;
+collectionHolder.appendChild(item);
+});
 
-        <div class="mt-6">
-            <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
-        </div>
-    {{ form_end(form) }}
+// JS pour afficher le fichier avant même la soumission
+document.addEventListener('change', (e) => {
+if (e.target.matches('.document-item input[type="file"]')) {
+const input = e.target;
+const previewDiv = input.closest('.document-item').querySelector('.preview');
+const file = input.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = function (e) {
+if (file.type === 'application/pdf') {
+previewDiv.innerHTML = `<iframe src="${
+e.target.result
+}" width="100%" height="400px"></iframe>`;
+} else if (file.type.startsWith('image/')) {
+previewDiv.innerHTML = `<img src="${
+e.target.result
+}" class="img-fluid"/>`;
+}
+}
+reader.readAsDataURL(file);
+} else {
+previewDiv.innerHTML = '<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>';
+}
+}
+});
 
-    <hr class="my-6">
+//
+document.addEventListener('click', (e) => {
+if (e.target && e.target.classList.contains('remove-document')) {
+e.target.closest('.document-item').remove();
+}
+});
 
-    <h2 class="text-xl font-semibold mb-2">Calendrier de planification</h2>
-    <div id="calendar" class="border rounded-lg p-3"></div>
-</div>
+	</script>
 {% endblock %}

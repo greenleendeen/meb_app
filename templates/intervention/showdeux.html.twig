@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail de l'intervention{% endblock %}
+
+{% block body %}
+<div class="container mt-4 p-4 bg-white rounded-xl shadow">
+    <h1>Détails de l'intervention</h1>
+
+    <div class="card p-4 shadow-sm mb-3">
+        <h5>📄 Informations de l'intervention</h5>
+        <p><strong>Référence :</strong> {{ intervention.reference }}</p>
+         <p><strong>Client :</strong> {{ intervention.clientNom }}</p>
+        <p><strong>adresse :</strong> {{ intervention.adresse }}</p>
+        <p><strong>Démande :</strong> {{ intervention.demande }}</p>
+        <p><strong>Détail :</strong> {{ intervention.detail }}</p>
+
+
+       {% for document in documents %}
+    {% if document.path ends with '.pdf' %}
+        <a href="{{ asset(document.path) }}" target="_blank">Voir le PDF</a>
+            </a>
+        {% elseif document.path matches '/\.(jpg|jpeg|png|gif)$/i' %}
+            <img src="{{ asset(document.path) }}" alt="aperçu document" class="img-fluid mt-2 rounded shadow-sm" />
+        {% endif %}
+    </div>
+{% else %}
+    <p>Aucun document trouvé.</p>
+{% endfor %}
+
+   
+
+
+
+    <a href="{{ path('app_intervention_index') }}" class="btn btn-secondary mt-3">⬅ Retour</a>
+</div>
+{% endblock %}

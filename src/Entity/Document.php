@@ -17,7 +17,7 @@ class Document
     #[ORM\Column(length: 255)]
     private ?string $filename = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $path = null;
 
     #[ORM\Column(enumType: DocumentType::class, nullable: false)]
@@ -39,6 +39,8 @@ public function setCompteRendu(?CompteRendu $compteRendu): static
 }
 
     #[ORM\ManyToOne(inversedBy: 'documents')]
+// un document ne peut pas exister sans être lié à une intervention.
+    #[ORM\JoinColumn(nullable: false)]
     private ?Intervention $intervention = null;
 
     public function getIntervention(): ?Intervention

@@ -32,11 +32,36 @@ final class InterventionController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
+                $documentsForms = $form->get('documents');
+$documentsEntities = $intervention->getDocuments();
+
+foreach ($documentsForms as $i => $docForm) {
+    /** @var UploadedFile|null $file */
+    $file = $docForm->get('file')->getData();
+
+    // On récupère l'entité Document correspondante
+    $document = $documentsEntities[$i] ?? null;
+
+    if ($document && $file) {
+        $newFilename = uniqid('', true) . '.' . $file->guessExtension();
+        $file->move($this->getParameter('documents_directory'), $newFilename);
+        $document->setFilename($newFilename);
+        // ajout le chemin
+        $document->setPath('uploads/documents/' . $newFilename);
+    }
+
+    if ($document) {
+        $document->setIntervention($intervention);
+    }
+}
+
+
             $em->persist($intervention);
             $em->flush();
 
             $this->addFlash('success', 'Intervention créée avec succès !');
-            return $this->redirectToRoute('app_intervention_index');
+           return $this->redirectToRoute('app_intervention_show', ['id' => $intervention->getId(),]);
         }
 
         return $this->render('intervention/new.html.twig', [
@@ -47,8 +72,10 @@ final class InterventionController extends AbstractController
     #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(Intervention $intervention): Response
     {
+        //show.html
         return $this->render('intervention/show.html.twig', [
             'intervention' => $intervention,
+            'documents' => $intervention->getDocuments(),
         ]);
     }
 
@@ -82,6 +109,6 @@ final class InterventionController extends AbstractController
             $this->addFlash('success', 'Intervention supprimée avec succès.');
         }
 
-        return $this->redirectToRoute('app_intervention_index');
+      return $this->redirectToRoute('app_intervention_show', ['id' => $intervention->getId(),]);
     }
 }
