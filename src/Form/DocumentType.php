@@ -33,40 +33,51 @@ class DocumentType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
 
-            // Champ pour le fichier PDF / PJ compatibilité avec page création du document
-            ->add('filename', TextType::class, [
-                'label' => 'Nom du fichier (base)',
-                'required' => false,
-            ])
+        $isEdit = $options['is_edit'];
 
-            // Pour la page créa intervention (upload direct)
-            ->add('file', FileType::class, [
-                'label' => 'Fichier PDF ou image',
-                'mapped' => false, //gère l’upload manuellement pas lié à la BDD directement
-                'required' => false,
-            ])
-            ->add('type', ChoiceType::class, [
-                'label' => 'Type de document',
-                'choices' => DocumentEnum::cases(),
-                'choice_value' => fn(?DocumentEnum $choice) => $choice?->value,
-                'choice_label' => fn(?DocumentEnum $choice) => $choice?->value,
-                'required' => false,
-            ])
+        if ($isEdit) {
+            // Affiché seulement en édition
+            $builder
 
-            ->add('intervention', EntityType::class, [
-                'class' => Intervention::class,
-                'choice_label' => 'reference', // ou un autre champ
-            ])
+                ->add('filename', TextType::class, [
+                    'label' => 'Nom du fichier',
+                    'required' => false,
+                ])
+                // Champ pour le fichier PDF / PJ compatibilité avec page création du document
+                //temporaire
+                ->add('file', FileType::class, [
+                    'label' => 'Fichier PDF ou image',
+                    'mapped' => false,
+                    'required' => $options['is_edit'] ? false : true,
+                ])
+                ->add('type', ChoiceType::class, [
+                    'label' => 'Type de document',
+                    'choices' => DocumentEnum::cases(),
+                    'choice_value' => fn(?DocumentEnum $choice) => $choice?->value,
+                    'choice_label' => fn(?DocumentEnum $choice) => $choice?->value,
+                    'required' => false,
+                ])
 
-        ;
+                ->add('intervention', EntityType::class, [
+                    'class' => Intervention::class,
+                    'choice_label' => 'reference', // ou un autre champ
+                ])
+
+                ->add('extractedText', TextareaType::class, [
+                    'required' => false,
+                    'label' => 'Texte extrait du PDF (modifiable)',
+                    'attr' => ['rows' => 10],
+                ])
+
+            ;
+        }
     }
-
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Document::class,
+            'is_edit' => false, // valeur par défaut
         ]);
     }
 }

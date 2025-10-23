@@ -142,6 +142,11 @@ public function getDocuments(): Collection
     return $this->documents;
 }
 
+public function setDocuments(): Collection
+{
+    return $this->documents;
+}
+
 public function addDocument(Document $document): static
 {
     if (!$this->documents->contains($document)) {

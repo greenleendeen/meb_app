@@ -29,7 +29,7 @@ final class DocumentController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_document_new', methods: ['GET','POST'])]
+    #[Route('/new', name: 'app_document_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $documentForm = $this->createForm(DocumentType::class);
@@ -74,9 +74,9 @@ final class DocumentController extends AbstractController
         }
 
         return $this->render('document/new.html.twig', [
-    'documentForm' => $documentForm->createView(),
-    'interventionForm' => $interventionForm->createView(),
-    'document' => new Document(), // ← ajouté pour que Twig ait un objet Document
+            'documentForm' => $documentForm->createView(),
+            'interventionForm' => $interventionForm->createView(),
+            'document' => new Document(), // ← ajouté pour que Twig ait un objet Document
         ]);
     }
 
@@ -92,12 +92,12 @@ final class DocumentController extends AbstractController
             /** @var UploadedFile $file */
             $file = $form->get('filename')->getData();
             if ($file) {
-                $newFilename = uniqid().'.'.$file->guessExtension();
+                $newFilename = uniqid() . '.' . $file->guessExtension();
                 $uploadDir = $this->getParameter('documents_directory');
                 $file->move($uploadDir, $newFilename);
 
                 $document->setFilename($newFilename);
-                $document->setPath('/uploads/documents/'.$newFilename);
+                $document->setPath('/uploads/documents/' . $newFilename);
 
                 $em->persist($document);
                 $em->flush();
@@ -123,10 +123,13 @@ final class DocumentController extends AbstractController
         return $this->render('document/show.html.twig', ['document' => $document]);
     }
 
-    #[Route('/{id}/edit', name: 'app_document_edit', methods: ['GET','POST'])]
+    #[Route('/{id}/edit', name: 'app_document_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Document $document, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(DocumentType::class, $document);
+        $form = $this->createForm(DocumentType::class, $document, [
+            'is_edit' => true,
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -144,7 +147,7 @@ final class DocumentController extends AbstractController
     #[Route('/{id}', name: 'app_document_delete', methods: ['POST'])]
     public function delete(Request $request, Document $document, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$document->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $document->getId(), $request->request->get('_token'))) {
             $em->remove($document);
             $em->flush();
         }

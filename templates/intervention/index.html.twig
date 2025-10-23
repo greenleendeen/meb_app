@@ -30,6 +30,10 @@
                 <td>
                     <a href="{{ path('app_intervention_show', {'id': intervention.id}) }}">Voir</a>
                 </td>
+
+                                <td>
+                    <a href="{{ path('app_intervention_edit', {'id': intervention.id}) }}">Editer</a>
+                </td>
             </tr>
         {% else %}
             <tr>

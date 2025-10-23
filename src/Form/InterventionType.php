@@ -39,7 +39,9 @@ class InterventionType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+             $isEdit = $options['is_edit'];
         $builder
+     
             //  ->add('title', TextType::class, ['label' => 'Titre', ])
             ->add('clientNom', TextType::class, ['required' => false])
             ->add('reference', TextType::class, ['required' => false])
@@ -48,17 +50,18 @@ class InterventionType extends AbstractType
             ->add('detail', TextareaType::class, ['required' => false])
 
             ->add('documents', CollectionType::class, [
-                'entry_type' => DocumentType::class,
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
-                'prototype' => true, // utile si tu veux ajouter dynamiquement via JS
-                'label' => 'Documents associés',
-            ]);
+            'entry_type' => DocumentType::class,
+            'allow_add' => true,
+            'allow_delete' => true,
+            'by_reference' => false,
+            'prototype' => true, // utile pour ajouter dynamiquement via JS
+            'label' => 'Documents associés',
+            'entry_options' => [
+                'is_edit' => $isEdit, // passe l’option à chaque DocumentType
+            ],
+        ]);
 
-
-
-        // ->add('title', TextType::class, ['label' => 'Titre'])
+             // ->add('title', TextType::class, ['label' => 'Titre'])
         //  ->add('date', DateTimeType::class, [
         //      'label' => 'Date',
         //      'widget' => 'single_text',
@@ -69,6 +72,7 @@ class InterventionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Intervention::class, //'data_class' => \App\Entity\Intervention::clas, ->le nom de classe complet (FQCN — Fully Qualified Class Name),
+         'is_edit' => false, // par défaut création
         ]);
     }
 }

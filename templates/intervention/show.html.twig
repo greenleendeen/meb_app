@@ -6,6 +6,10 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <h1>Détails de l'intervention</h1>
+ <!--bouton pour revenir à l'accueil  -->
+		<li style="display: inline; margin: 0 15px;">
+			<a href="{{ path('app_home') }}">← Retour à l'accueil</a>
+		</li>
         <a href="#" onclick="window.print()" class="btn btn-outline-primary">
             🖨️ Imprimer / PDF
         </a>
@@ -13,7 +17,7 @@
 
     <!-- Informations principales -->
     <div class="card p-4 shadow-sm mb-4">
-        <h5>📋 Informations générales</h5>
+        <h5> Informations générales</h5>
         <p><strong>Référence :</strong> {{ intervention.reference }}</p>
         <p><strong>Client :</strong> {{ intervention.clientNom }}</p>
         <p><strong>Adresse :</strong> {{ intervention.adresse }}</p>
@@ -22,7 +26,7 @@
 
     <!-- Compte rendu -->
     <div class="card p-4 shadow-sm mb-4">
-        <h5>📝 Compte rendu / Détails</h5>
+        <h5> Compte rendu / Détails</h5>
         <div style="min-height:120mm; border:1px solid #ccc; padding:10px; overflow:auto;">
             {% if intervention.detail %}
                 <p style="white-space: pre-wrap;">{{ intervention.detail }}</p>
@@ -58,5 +62,28 @@
             <p class="text-muted fst-italic">Aucun document lié à cette intervention.</p>
         {% endif %}
     </div>
+<!-- Afficher le texte extrait-->
+<div class="card p-3 mt-4">
+    <h5> Texte extrait automatiquement</h5>
+
+    {% if documents|length > 0 %}
+        {% for document in documents %}
+            <div class="mb-3">
+                <h6 class="text-primary">{{ document.filename }}</h6>
+
+                {% if document.extractedText %}
+                    <textarea class="form-control" rows="8" readonly style="font-size: 0.9rem;">
+                        {{ document.extractedText }}
+                    </textarea>
+                {% else %}
+                    <p class="text-muted fst-italic">Aucun texte n’a été extrait de ce fichier.</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted fst-italic">Aucun document disponible pour cette intervention.</p>
+    {% endif %}
+</div>
+
 </div>
 {% endblock %}
