@@ -35,13 +35,19 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType; // <-- IMPORTANT
 use App\Form\DocumentType; // importer le DocumentType 
 
+
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TimeType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\User;
+
 class InterventionType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-             $isEdit = $options['is_edit'];
+        $isEdit = $options['is_edit'];
         $builder
-     
+
             //  ->add('title', TextType::class, ['label' => 'Titre', ])
             ->add('clientNom', TextType::class, ['required' => false])
             ->add('reference', TextType::class, ['required' => false])
@@ -50,18 +56,41 @@ class InterventionType extends AbstractType
             ->add('detail', TextareaType::class, ['required' => false])
 
             ->add('documents', CollectionType::class, [
-            'entry_type' => DocumentType::class,
-            'allow_add' => true,
-            'allow_delete' => true,
-            'by_reference' => false,
-            'prototype' => true, // utile pour ajouter dynamiquement via JS
-            'label' => 'Documents associés',
-            'entry_options' => [
-                'is_edit' => $isEdit, // passe l’option à chaque DocumentType
-            ],
-        ]);
+                'entry_type' => DocumentType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true, // utile pour ajouter dynamiquement via JS
+                'label' => 'Documents associés',
+                'entry_options' => [
+                    'is_edit' => $isEdit, // passe l’option à chaque DocumentType
+                ],
+            ])
 
-             // ->add('title', TextType::class, ['label' => 'Titre'])
+            //j'ajoute les champs dans le formulaire pour les testes et pour la suite
+            ->add('dateIntervention', DateType::class, [
+                'widget' => 'single_text',
+                'required' => false,
+                'label' => 'Date intervention',
+            ])
+            ->add('heureDebut', TimeType::class, [
+                'widget' => 'single_text',
+                'required' => false,
+                'label' => 'Heure de début',
+            ])
+            ->add('heureFin', TimeType::class, [
+                'widget' => 'single_text',
+                'required' => false,
+                'label' => 'Heure de fin',
+            ])
+            ->add('technicien', EntityType::class, [
+                'class' => User::class,
+                'choice_label' => 'username',
+                'label' => 'Technicien',
+                'required' => false,
+            ]);
+
+        // ->add('title', TextType::class, ['label' => 'Titre'])
         //  ->add('date', DateTimeType::class, [
         //      'label' => 'Date',
         //      'widget' => 'single_text',
@@ -72,7 +101,7 @@ class InterventionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Intervention::class, //'data_class' => \App\Entity\Intervention::clas, ->le nom de classe complet (FQCN — Fully Qualified Class Name),
-         'is_edit' => false, // par défaut création
+            'is_edit' => false, // par défaut création
         ]);
     }
 }

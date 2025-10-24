@@ -29,7 +29,7 @@ final class InterventionController extends AbstractController
             'interventions' => $interventionRepository->findAll(),
         ]);
     }
-    /** crée une nouvelle intervention */
+    /** crée une nouvelle intervention  !!! il faudra ajouter $intervention->setCreatedBy($this->getUser()); pour gerer le 'user'*/ 
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, PdfExtractor $pdfExtractor): Response
     {

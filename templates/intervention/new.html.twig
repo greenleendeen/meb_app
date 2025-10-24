@@ -1,150 +1,158 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle intervention{% endblock %}
+{% block title %}Nouvelle intervention
+{% endblock %}
 
 {% block body %}
-<div class="container my-4">
-    <h1 class="mb-4">Créer une nouvelle intervention</h1>
+	<div class="container my-4">
+		<h1 class="mb-4">Créer une nouvelle intervention</h1>
 
-    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+		{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
 
-    <div class="row g-4">
-        <!-- Colonne gauche : infos intervention -->
-        <div class="col-md-6">
-            <div class="card shadow-sm p-3">
-                <h4 class="mb-3">Informations principales</h4>
-                {{ form_row(form.clientNom) }}
-                {{ form_row(form.reference) }}
-                {{ form_row(form.adresse) }}
-                {{ form_row(form.demande) }}
-                {{ form_row(form.detail) }}
-            </div>
-        </div>
+		<div
+			class="row g-4">
+			<!-- Colonne gauche : infos intervention -->
+			<div class="col-md-6">
+				<div class="card shadow-sm p-3">
+					<h4 class="mb-3">Informations principales</h4>
+					{{ form_row(form.clientNom) }}
+					{{ form_row(form.reference) }}
+					{{ form_row(form.adresse) }}
+					{{ form_row(form.demande) }}
+					{{ form_row(form.detail) }}
 
-        <!-- Colonne droite : documents et PDF -->
-        <div class="col-md-6">
-            <div class="card shadow-sm p-3 mb-3">
-                <h4 class="mb-3">Documents associés</h4>
-<!-- IFrame pour le PDF -->
-            <div class="card shadow-sm p-3">
-                <h4 class="mb-3">Aperçu PDF</h4>
-                <iframe id="pdfViewer" 
-                        style="width:100%; height:500px; border:1px solid #ccc;" 
-                        src=""
-                        class="d-none"></iframe>
-                <p id="pdfPlaceholder" class="text-muted fst-italic text-center">
-                    Le PDF s'affichera ici après sélection.
-                </p>
-            </div>
-                <div id="documents-wrapper" data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}">
-                    {% for docForm in form.documents %}
-                        <div class="document-item border rounded p-3 mb-3">
-                            {{ form_row(docForm.file) }}
-                            {{ form_row(docForm.type) }}
+					{# nouveaux champs #}
+					{{ form_row(form.dateIntervention) }}
+					{{ form_row(form.heureDebut) }}
+					{{ form_row(form.heureFin) }}
+					{{ form_row(form.technicien) }}
+				</div>
+			</div>
 
-                            <div class="preview mt-2">
-                                <p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
-                            </div>
+			<!-- Colonne droite : documents et PDF -->
+			<div class="col-md-6">
+				<div class="card shadow-sm p-3 mb-3">
+					<h4 class="mb-3">Documents associés</h4>
+					<!-- IFrame pour le PDF -->
+					<div class="card shadow-sm p-3">
+						<h4 class="mb-3">Aperçu PDF</h4>
+						<iframe id="pdfViewer" style="width:100%; height:500px; border:1px solid #ccc;" src="" class="d-none"></iframe>
+						<p id="pdfPlaceholder" class="text-muted fst-italic text-center">
+							Le PDF s'affichera ici après sélection.
+						</p>
+					</div>
+					<div id="documents-wrapper" data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}">
+						{% for docForm in form.documents %}
+							<div class="document-item border rounded p-3 mb-3">
+								{{ form_row(docForm.file) }}
+								{{ form_row(docForm.type) }}
 
-                            <button type="button" class="btn btn-outline-danger btn-sm remove-document">
-                                Supprimer
-                            </button>
-                        </div>
-                    {% endfor %}
-                </div>
+								<div class="preview mt-2">
+									<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
+								</div>
 
-                <button type="button" id="add-document" class="btn btn-outline-secondary mt-2">
-                    + Ajouter un document
-                </button>
-            </div>
+								<button type="button" class="btn btn-outline-danger btn-sm remove-document">
+									Supprimer
+								</button>
+							</div>
+						{% endfor %}
+					</div>
 
-            
-        </div>
-    </div>
+					<button type="button" id="add-document" class="btn btn-outline-secondary mt-2">
+						+ Ajouter un document
+					</button>
+				</div>
 
-    <div class="mt-4 text-end">
-        <button type="submit" class="btn btn-primary">Enregistrer l’intervention</button>
-    </div>
 
-    {{ form_end(form) }}
-</div>
+			</div>
+		</div>
 
-<script>
-const collectionHolder = document.getElementById('documents-wrapper');
+		<div class="mt-4 text-end">
+			<button type="submit" class="btn btn-primary">Enregistrer l’intervention</button>
+		</div>
+
+		{{ form_end(form) }}
+	</div>
+
+	<script>
+		const collectionHolder = document.getElementById('documents-wrapper');
 const addButton = document.getElementById('add-document');
 collectionHolder.dataset.index = collectionHolder.querySelectorAll('.document-item').length;
 
 addButton.addEventListener('click', () => {
-    const prototype = collectionHolder.dataset.prototype;
-    const index = collectionHolder.dataset.index;
-    const newForm = prototype.replace(/__name__/g, index);
-    collectionHolder.dataset.index++;
+const prototype = collectionHolder.dataset.prototype;
+const index = collectionHolder.dataset.index;
+const newForm = prototype.replace(/__name__/g, index);
+collectionHolder.dataset.index ++;
 
-    const item = document.createElement('div');
-    item.classList.add('document-item', 'border', 'rounded', 'p-3', 'mb-3');
-    item.innerHTML = newForm + `
+const item = document.createElement('div');
+item.classList.add('document-item', 'border', 'rounded', 'p-3', 'mb-3');
+item.innerHTML = newForm + `
         <div class="preview mt-2">
             <p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
         </div>
         <button type="button" class="btn btn-outline-danger btn-sm remove-document">Supprimer</button>
     `;
-    collectionHolder.appendChild(item);
+collectionHolder.appendChild(item);
 });
 
 // Supprimer un document
 document.addEventListener('click', (e) => {
-    if (e.target && e.target.classList.contains('remove-document')) {
-        e.target.closest('.document-item').remove();
-    }
+if (e.target && e.target.classList.contains('remove-document')) {
+e.target.closest('.document-item').remove();
+}
 });
 
 // Afficher PDF sélectionné dans l'iframe
 document.addEventListener('change', (e) => {
-    if (e.target.matches('.document-item input[type="file"]')) {
-        const input = e.target;
-        const file = input.files[0];
-        const previewDiv = input.closest('.document-item').querySelector('.preview');
+if (e.target.matches('.document-item input[type="file"]')) {
+const input = e.target;
+const file = input.files[0];
+const previewDiv = input.closest('.document-item').querySelector('.preview');
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                if (file.type === 'application/pdf') {
-                    // Affiche dans l'iframe
-                    const pdfViewer = document.getElementById('pdfViewer');
-                    const placeholder = document.getElementById('pdfPlaceholder');
-                    pdfViewer.src = ev.target.result;
-                    pdfViewer.classList.remove('d-none');
-                    placeholder.classList.add('d-none');
+if (file) {
+const reader = new FileReader();
+reader.onload = function (ev) {
+if (file.type === 'application/pdf') { // Affiche dans l'iframe
+const pdfViewer = document.getElementById('pdfViewer');
+const placeholder = document.getElementById('pdfPlaceholder');
+pdfViewer.src = ev.target.result;
+pdfViewer.classList.remove('d-none');
+placeholder.classList.add('d-none');
 
-                    // Aperçu dans le document-item
-                    previewDiv.innerHTML = `<iframe src="${ev.target.result}" width="100%" height="400px"></iframe>`;
-                } else if (file.type.startsWith('image/')) {
-                    previewDiv.innerHTML = `<img src="${ev.target.result}" class="img-fluid"/>`;
-                }
-            };
-            reader.readAsDataURL(file);
-        } else {
-            previewDiv.innerHTML = '<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>';
-        }
-    }
+// Aperçu dans le document-item
+previewDiv.innerHTML = `<iframe src="${
+ev.target.result
+}" width="100%" height="400px"></iframe>`;
+} else if (file.type.startsWith('image/')) {
+previewDiv.innerHTML = `<img src="${
+ev.target.result
+}" class="img-fluid"/>`;
+}
+};
+reader.readAsDataURL(file);
+} else {
+previewDiv.innerHTML = '<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>';
+}
+}
 });
 
 // Retenir le champ actif pour insertion du texte
 let activeField = null;
 document.querySelectorAll('input, textarea').forEach(field => {
-    field.addEventListener('focus', () => activeField = field);
+field.addEventListener('focus', () => activeField = field);
 });
 
 // Copier texte sélectionné dans l'iframe vers le champ actif
 const pdfViewer = document.getElementById('pdfViewer');
 pdfViewer.addEventListener('load', () => {
-    const iframeDoc = pdfViewer.contentDocument || pdfViewer.contentWindow.document;
-    iframeDoc.addEventListener('mouseup', () => {
-        const selection = iframeDoc.getSelection().toString().trim();
-        if (selection && activeField) {
-            activeField.value = selection;
-        }
-    });
+const iframeDoc = pdfViewer.contentDocument || pdfViewer.contentWindow.document;
+iframeDoc.addEventListener('mouseup', () => {
+const selection = iframeDoc.getSelection().toString().trim();
+if (selection && activeField) {
+activeField.value = selection;
+}
 });
-</script>
+});
+	</script>
 {% endblock %}

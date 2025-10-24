@@ -32,6 +32,27 @@ class Intervention
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $detail = null;
 
+// j'ajoute les champs manquants dans l'entité; je mets nullable: true - tant que je n'ai pas encore tous les formulaires et fixtures mis à jour.
+//Ça évitera une erreur SQL du type "column cannot be null" pendant les premiers tests.
+
+#[ORM\Column(type: 'date', nullable: true)]
+private ?\DateTimeInterface $dateIntervention = null;
+
+#[ORM\Column(type: 'time', nullable: true)]
+private ?\DateTimeInterface $heureDebut = null;
+
+#[ORM\Column(type: 'time', nullable: true)]
+private ?\DateTimeInterface $heureFin = null;
+
+#[ORM\ManyToOne(targetEntity: User::class)]
+#[ORM\JoinColumn(nullable: true)]
+private ?User $technicien = null;
+
+//l'utilisateur créateur de l'intervention 
+//#[ORM\ManyToOne(targetEntity: User::class)]
+//#[ORM\JoinColumn(nullable: true)]
+//private ?User $createdBy = null;
+
 #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'])]
 private Collection $compteRendus; // pluriel
 
@@ -166,5 +187,50 @@ public function removeDocument(Document $document): static
     return $this;
 }
 
+// --- Getters / Setters pour datetime, heuredebut, heurefin et technicien---
+
+public function getDateIntervention(): ?\DateTimeInterface
+{
+    return $this->dateIntervention;
+}
+
+public function setDateIntervention(?\DateTimeInterface $dateIntervention): self
+{
+    $this->dateIntervention = $dateIntervention;
+    return $this;
+}
+
+public function getHeureDebut(): ?\DateTimeInterface
+{
+    return $this->heureDebut;
+}
+
+public function setHeureDebut(?\DateTimeInterface $heureDebut): self
+{
+    $this->heureDebut = $heureDebut;
+    return $this;
+}
+
+public function getHeureFin(): ?\DateTimeInterface
+{
+    return $this->heureFin;
+}
+
+public function setHeureFin(?\DateTimeInterface $heureFin): self
+{
+    $this->heureFin = $heureFin;
+    return $this;
+}
+
+public function getTechnicien(): ?User
+{
+    return $this->technicien;
+}
+
+public function setTechnicien(?User $technicien): self
+{
+    $this->technicien = $technicien;
+    return $this;
+}
 
 }
