@@ -85,7 +85,7 @@ class InterventionType extends AbstractType
             ])
             ->add('technicien', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'username',
+                'choice_label' => 'nom',
                 'label' => 'Technicien',
                 'required' => false,
             ]);
