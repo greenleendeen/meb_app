@@ -100,8 +100,8 @@ class InterventionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Intervention::class, //'data_class' => \App\Entity\Intervention::clas, ->le nom de classe complet (FQCN — Fully Qualified Class Name),
-            'is_edit' => false, // par défaut création
+            'data_class' => Intervention::class,
+            'is_edit' => false,
         ]);
     }
 }
