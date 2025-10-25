@@ -1,0 +1,24 @@
+.fc {
+  font-family: Arial, sans-serif;
+}
+
+.fc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+.fc-daygrid-event {
+  background-color: #3788d8;
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+}
+
+.fc-timegrid-event {
+  background-color: #3788d8;
+  color: white;
+  border-radius: 4px;
+  padding: 2px;
+}

@@ -31,6 +31,9 @@ final class CalendarController extends AbstractController
     #[Route('/calendar/events', name: 'app_calendar_events', methods: ['GET'])]
     public function events(Request $request, InterventionRepository $interventionRepo): JsonResponse
     {
+            // Affiche les paramètres envoyés par FullCalendar
+    dump($request->query->all());
+
         $start = $request->query->get('start');
         $end = $request->query->get('end');
         $technicienId = $request->query->get('technicien');
@@ -39,17 +42,18 @@ final class CalendarController extends AbstractController
             return $this->json([]);
         }
 
-        try {
-            $start = new \DateTime($start);
-            $end   = new \DateTime($end);
-        } catch (\Exception $e) {
-            return $this->json(['error' => 'Invalid dates'], 400);
-        }
+     try {
+    $start = new \DateTimeImmutable(str_replace(' ', '+', $request->query->get('start')));
+    $end   = new \DateTimeImmutable(str_replace(' ', '+', $request->query->get('end')));
+} catch (\Exception $e) {
+    return $this->json(['error' => 'Invalid dates'], 400);
+}
+
 
         $qb = $interventionRepo->createQueryBuilder('i')
-            ->where('i.dateIntervention BETWEEN :start AND :end')
-            ->setParameter('start', $start)
-            ->setParameter('end', $end);
+           ->where('i.dateIntervention BETWEEN :start AND :end')
+    ->setParameter('start', $start->format('Y-m-d H:i:s'))
+    ->setParameter('end', $end->format('Y-m-d H:i:s'));
 
         if ($technicienId) {
             $qb->andWhere('i.technicien = :tech')
