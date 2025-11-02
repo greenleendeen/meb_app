@@ -17,47 +17,68 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager): void
     {
-        // Création du Super Admin
-        $superAdmin = new User();
-        $superAdmin->setNom('Super Admin');
-        $superAdmin->setIdentifiant('superadmin@example.com');
-        $superAdmin->setPassword(
-            $this->passwordHasher->hashPassword($superAdmin, 'superpassword')
-        );
-
-        // Récupération du rôle via la référence créée dans RoleFixtures
-
+        // 🔹 Récupère les rôles existants
         $roleSuperAdmin = $manager->getRepository(Role::class)->findOneBy(['nom' => 'ROLE_SUPER_ADMIN']);
-        $superAdmin->addRole($roleSuperAdmin);
+        $roleAdmin      = $manager->getRepository(Role::class)->findOneBy(['nom' => 'ROLE_ADMIN']);
+        $roleTech       = $manager->getRepository(Role::class)->findOneBy(['nom' => 'ROLE_TECHNICIEN']);
 
-        $manager->persist($superAdmin);
-
-        //  Admin standard
-        $admin = new User();
-        $admin->setNom('Admin Test');
-        $admin->setIdentifiant('admin@example.com');
-        $admin->setPassword(
-            $this->passwordHasher->hashPassword($admin, 'adminpassword')
+        //  Super Admin
+        $this->createUserIfNotExists(
+            $manager,
+            'Super Admin',
+            'superadmin@example.com',
+            'superpassword',
+            $roleSuperAdmin
         );
 
-        /**  $roleAdmin */
-        $roleAdmin = $manager->getRepository(Role::class)->findOneBy(['nom' => 'ROLE_ADMIN']);
-        $admin->addRole($roleAdmin);
-
-        $manager->persist($admin);
-
-        //  Technicien
-        $tech = new User();
-        $tech->setNom('Technicien Test');
-        $tech->setIdentifiant('tech@example.com');
-        $tech->setPassword(
-            $this->passwordHasher->hashPassword($tech, 'techpassword')
+        //  Admin
+        $this->createUserIfNotExists(
+            $manager,
+            'Admin Test',
+            'admin@example.com',
+            'adminpassword',
+            $roleAdmin
         );
-        $roleTech = $manager->getRepository(Role::class)->findOneBy(['nom' => 'ROLE_TECHNICIEN']);
-        $tech->addRole($roleTech);
-        $manager->persist($tech);
+
+        //  Technicien Test
+        $this->createUserIfNotExists(
+            $manager,
+            'Technicien Test',
+            'tech@example.com',
+            'techpassword',
+            $roleTech
+        );
 
         $manager->flush();
+    }
+
+    /**
+     * Petite fonction utilitaire pour éviter les répétitions
+     */
+    private function createUserIfNotExists(
+        ObjectManager $manager,
+        string $nom,
+        string $identifiant,
+        string $plainPassword,
+        ?Role $role
+    ): void {
+        $repo = $manager->getRepository(User::class);
+        $existingUser = $repo->findOneBy(['identifiant' => $identifiant]);
+
+        if ($existingUser) {
+            return; // utilisateur déjà existant, on saute
+        }
+
+        $user = new User();
+        $user->setNom($nom);
+        $user->setIdentifiant($identifiant);
+        $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
+
+        if ($role) {
+            $user->addRole($role);
+        }
+
+        $manager->persist($user);
     }
 
     /**

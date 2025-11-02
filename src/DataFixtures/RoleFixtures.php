@@ -12,19 +12,26 @@ class RoleFixtures extends Fixture
     {
         $roles = [
             'ROLE_SUPER_ADMIN' => 'Super-Admin',
-            'ROLE_ADMIN' => 'Administrateur',
-            'ROLE_OPERATEUR' => 'Opérateur',
-            'ROLE_TECHNICIEN' => 'Technicien',
-            'ROLE_CLIENT' => 'Client',
+            'ROLE_ADMIN'       => 'Administrateur',
+            'ROLE_OPERATEUR'   => 'Opérateur',
+            'ROLE_TECHNICIEN'  => 'Technicien',
+            'ROLE_CLIENT'      => 'Client',
         ];
-        
-foreach (['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_OPERATEUR', 'ROLE_TECHNICIEN', 'ROLE_CLIENT'] as $r) {
-    $role = new Role();
-    $role->setNom($r);
-    $manager->persist($role);
 
-    $this->addReference($r, $role);
-}
+        foreach ($roles as $roleName => $roleLabel) {
+            //  Vérifie si le rôle existe déjà en base
+            $existingRole = $manager->getRepository(Role::class)->findOneBy(['nom' => $roleName]);
+
+            if (!$existingRole) {
+                $role = new Role();
+                $role->setNom($roleName);
+                $manager->persist($role);
+                $this->addReference($roleName, $role);
+            } else {
+                //  Réutilise la référence si déjà existant
+                $this->addReference($roleName, $existingRole);
+            }
+        }
 
         $manager->flush();
     }

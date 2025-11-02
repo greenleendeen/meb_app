@@ -36,6 +36,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
     private Collection $roles;
 
+    #[ORM\Column(length: 7, nullable: true)]
+    private ?string $couleur = null;
+
     public function __construct()
     {
         $this->compteRendu = new ArrayCollection();
@@ -148,5 +151,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles = $this->roles->map(fn(Role $r) => $r->getNom())->toArray();
         $roles[] = 'ROLE_USER'; // rôle par défaut
         return array_unique($roles);
+    }
+
+    public function getCouleur(): ?string
+    {
+        return $this->couleur;
+    }
+
+    public function setCouleur(?string $couleur): static
+    {
+        $this->couleur = $couleur;
+
+        return $this;
     }
 }

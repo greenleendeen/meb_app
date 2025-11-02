@@ -5,13 +5,31 @@
 {% block body %}
 <div class="container mt-4">
     <h1 class="mb-4">📅 Planning des interventions</h1>
-
     <select id="technicienFilter" class="form-select mb-3">
         <option value="">Tous les techniciens</option>
         {% for technicien in techniciens %}
             <option value="{{ technicien.id }}">{{ technicien.nom }}</option>
         {% endfor %}
     </select>
+<!-- -->
+    <div class="mb-3 d-flex gap-2 flex-wrap">
+  <button class="btn btn-sm btn-outline-secondary" data-tech-id="">
+    Tous
+  </button>
+  {% set colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6610f2'] %}
+  {% for technicien in techniciens %}
+    {% set color = colors[loop.index0 % colors|length] %}
+    <button
+      class="btn btn-sm"
+      style="background-color: {{ color }}; color: white;"
+      data-tech-id="{{ technicien.id }}"
+    >
+      {{ technicien.nom }} 
+    </button>
+  {% endfor %}
+</div>
+
+
 
     <div id="calendar"></div>
 </div>

@@ -16,23 +16,23 @@ final class CalendarController extends AbstractController
     public function index(UserRepository $userRepo): Response
     {
         // Récupère les techniciens avec rôle TECHNICIEN (stocké dans le champ JSON "roles")
-       $allUsers = $userRepo->findAll();
+        $allUsers = $userRepo->findAll();
 
-    // Ne garder que les techniciens
-    $techniciens = array_filter($allUsers, function($u) {
-        return in_array('ROLE_TECHNICIEN', $u->getRoles());
-    });
+        // Ne garder que les techniciens
+        $techniciens = array_filter($allUsers, function ($u) {
+            return in_array('ROLE_TECHNICIEN', $u->getRoles());
+        });
 
-    return $this->render('calendar/index.html.twig', [
-        'techniciens' => $techniciens,
+        return $this->render('calendar/index.html.twig', [
+            'techniciens' => $techniciens,
         ]);
     }
 
     #[Route('/calendar/events', name: 'app_calendar_events', methods: ['GET'])]
     public function events(Request $request, InterventionRepository $interventionRepo): JsonResponse
     {
-            // Affiche les paramètres envoyés par FullCalendar
-    dump($request->query->all());
+        // Affiche les paramètres envoyés par FullCalendar
+        dump($request->query->all());
 
         $start = $request->query->get('start');
         $end = $request->query->get('end');
@@ -42,18 +42,18 @@ final class CalendarController extends AbstractController
             return $this->json([]);
         }
 
-     try {
-    $start = new \DateTimeImmutable(str_replace(' ', '+', $request->query->get('start')));
-    $end   = new \DateTimeImmutable(str_replace(' ', '+', $request->query->get('end')));
-} catch (\Exception $e) {
-    return $this->json(['error' => 'Invalid dates'], 400);
-}
+        try {
+            $start = new \DateTimeImmutable(str_replace(' ', '+', $request->query->get('start')));
+            $end   = new \DateTimeImmutable(str_replace(' ', '+', $request->query->get('end')));
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Invalid dates'], 400);
+        }
 
 
         $qb = $interventionRepo->createQueryBuilder('i')
-           ->where('i.dateIntervention BETWEEN :start AND :end')
-    ->setParameter('start', $start->format('Y-m-d H:i:s'))
-    ->setParameter('end', $end->format('Y-m-d H:i:s'));
+            ->where('i.dateIntervention BETWEEN :start AND :end')
+            ->setParameter('start', $start->format('Y-m-d H:i:s'))
+            ->setParameter('end', $end->format('Y-m-d H:i:s'));
 
         if ($technicienId) {
             $qb->andWhere('i.technicien = :tech')
@@ -61,14 +61,31 @@ final class CalendarController extends AbstractController
         }
 
         $interventions = $qb->getQuery()->getResult();
+   // Ici, on gère la couleur du technicien
+    $events = [];
+    foreach ($interventions as $intervention) {
+        $technicien = $intervention->getTechnicien(); // ou getUser() selon ton entité
 
-        $events = array_map(fn($i) => [
-            'id'    => $i->getId(),
-            'title' => $i->getClientNom() ?? 'Intervention',
-            'start' => $i->getDateIntervention()->format('Y-m-d') . 'T' . $i->getHeureDebut()->format('H:i:s'),
-            'end'   => $i->getDateIntervention()->format('Y-m-d') . 'T' . $i->getHeureFin()->format('H:i:s'),
-        ], $interventions);
-
-        return $this->json($events);
+        $events[] = [
+            'id' => $intervention->getId(),
+            'title' => $intervention->getAdresse()  ?? 'Intervention',
+            'start' => $intervention->getDateIntervention()->format('Y-m-d') . 'T' . $intervention->getHeureDebut()->format('H:i:s'),
+            'end' => $intervention->getDateIntervention()->format('Y-m-d') . 'T' . $intervention->getHeureFin()->format('H:i:s'),
+            'backgroundColor' => $technicien?->getCouleur() ?? '#999999', // couleur du technicien
+            'borderColor' => $technicien?->getCouleur() ?? '#999999',
+        ];
     }
+
+    return $this->json($events);
+}
+
+      //  $events = array_map(fn($i) => [
+       //     'id'    => $i->getId(),
+      //      'title' => $i->getClientNom() ?? 'Intervention',
+      //      'start' => $i->getDateIntervention()->format('Y-m-d') . 'T' . $i->getHeureDebut()->format('H:i:s'),
+      //      'end'   => $i->getDateIntervention()->format('Y-m-d') . 'T' . $i->getHeureFin()->format('H:i:s'),
+      //  ], $interventions);
+
+     //   return $this->json($events);
+  //  }
 }

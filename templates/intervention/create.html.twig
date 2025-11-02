@@ -6,7 +6,7 @@
 {% block body %}
 	<h1>Formulaire de création d'une intervention</h1>
 
-	<input type="text" data-controller="flatpickr" data-flatpickr-target="input" id="intervention_date" />
+	<!--<input type="text" data-controller="flatpickr" data-flatpickr-target="input" id="intervention_date" /> -->
 	
 	<ul>
 		<li>
@@ -20,7 +20,12 @@
 
 	{{ form_start(form) }}
 {{ form_row(form.title) }}
-{{ form_row(form.date) }}
+	{{ form_row(form.date, {
+    attr: {
+        'data-controller': 'flatpickr',
+        'data-flatpickr-target': 'input'
+    }
+}) }}
 <button type="submit">Enregistrer</button>
 {{ form_end(form) }}
 
