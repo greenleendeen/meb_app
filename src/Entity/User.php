@@ -34,6 +34,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // --- Relation ManyToMany vers Role (si nécessaire pour gérer roles personnalisés) ---
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
+    #[ORM\JoinTable(name: "user_role")]
     private Collection $roles;
 
     #[ORM\Column(length: 7, nullable: true)]

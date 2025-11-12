@@ -37,3 +37,102 @@
   border-radius: 6px;
   font-size: .85rem;
 }
+
+/* Tooltip natif pour FullCalendar, compatible toutes vues */
+.fc-event, 
+.fc-daygrid-event, 
+.fc-timegrid-event {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Tooltip */
+.fc-event[data-tooltip]:hover::after,
+.fc-daygrid-event[data-tooltip]:hover::after,
+.fc-timegrid-event[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 5px;
+  white-space: pre-line;
+  z-index: 9999;
+  font-size: 0.75rem;
+  max-width: 700px;
+  text-align: left;
+  pointer-events: none;
+
+  top: -10px;
+  left: 50%;
+  transform: translate(-50%, -100%);
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid red; /* test visuel */
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.fc-event[data-tooltip]:hover::after,
+.fc-daygrid-event[data-tooltip]:hover::after,
+.fc-timegrid-event[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* === Harmonisation de la vue semaine (timeGridWeek) === */
+
+
+/* Facultatif : effet “bande colorée” homogène */
+.fc .fc-timegrid-event {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  opacity: 0.95;
+}
+
+/* === SURVOL === */
+.fc .fc-timegrid-event:hover {
+  transform: scale(1.03);
+  filter: brightness(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Permet d'afficher tout le texte à l'intérieur */
+.fc .fc-timegrid-event:hover .fc-event-main {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+/* Toast (confirmation) */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #2ecc71;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Colonne de technicien bien séparée */
+.fc .fc-resource-timegrid-divider {
+  background-color: #ccc;
+}
+
+/* En-tête du technicien */
+.fc .fc-col-header-cell {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  text-align: center;
+}

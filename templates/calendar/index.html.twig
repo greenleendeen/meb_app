@@ -34,5 +34,45 @@
     <div id="calendar"></div>
 </div>
 
+<!-- Modal d’édition -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="editEventLabel">Modifier l’intervention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editEventId">
+
+        <div class="mb-3">
+          <label class="form-label">Heure de début</label>
+          <input type="datetime-local" class="form-control" id="editStart">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Heure de fin</label>
+          <input type="datetime-local" class="form-control" id="editEnd">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Technicien</label>
+          <select class="form-select" id="editTechnicien">
+            {% for tech in techniciens %}
+              <option value="{{ tech.id }}">{{ tech.nom }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="saveEventBtn">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 {{ vite_entry_script_tags('calendar') }}
 {% endblock %}

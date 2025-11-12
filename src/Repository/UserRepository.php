@@ -16,6 +16,17 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    // méthode de filtre des user par role
+public function findByRole(string $roleName): array
+{
+    return $this->createQueryBuilder('u')
+        ->join('u.roles', 'r')
+        ->andWhere('r.nom = :role') // on utilise bien 'nom'
+        ->setParameter('role', $roleName)
+        ->getQuery()
+        ->getResult();
+}
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */

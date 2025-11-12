@@ -39,8 +39,6 @@ class DocumentType extends AbstractType
 
         // Affiché seulement en édition
         $builder
-
-
             // Champ pour le fichier PDF / PJ compatibilité avec page création du document
             //temporaire
             ->add('file', FileType::class, [
