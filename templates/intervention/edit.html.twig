@@ -5,13 +5,14 @@
 
 {% block body %}
 	<div class="container my-4">
-		<h1 class="mb-4">🧾 Modifier une intervention</h1>
+		<h1 class="mb-4">
+			Modifier une intervention</h1>
 
 		{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
 
 		<div
 			class="row g-4">
-			<!-- 🟦 Colonne gauche : formulaire -->
+			<!--  Colonne gauche : formulaire -->
 			<div class="col-md-4">
 				<div class="card shadow-sm p-3 h-100">
 					<h4 class="mb-3">Informations</h4>
@@ -29,7 +30,7 @@
 				</div>
 			</div>
 
-			<!-- 🟩 Colonne droite : aperçu des documents -->
+			<!-- Colonne droite : aperçu des documents -->
 			<div class="col-md-8">
 				<div class="card shadow-sm p-3 h-100">
 					<h4 class="mb-3">Document affiché</h4>
@@ -37,10 +38,10 @@
 					{% if intervention.documents|length > 0 %}
 						{% for document in intervention.documents %}
 							<div class="mb-3 border p-2 rounded">
-								{% if document.filename ends with '.pdf' %}
-									<iframe src="{{ asset('uploads/documents/' ~ document.filename) }}" width="100%" height="700px" class="rounded border"></iframe>
-								{% elseif document.filename matches '/\.(jpg|jpeg|png|gif)$/i' %}
-									<img src="{{ asset('uploads/documents/' ~ document.filename) }}" alt="aperçu" class="img-fluid rounded shadow-sm"/>
+								{% if document.path ends with '.pdf' %}
+									<iframe src="{{ asset(document.path) }}" width="100%" height="700px" class="rounded border"></iframe>
+								{% elseif document.path matches '/\.(jpg|jpeg|png|gif)$/i' %}
+									<img src="{{ asset(document.path) }}" alt="aperçu" class="img-fluid rounded shadow-sm"/>
 								{% endif %}
 							</div>
 						{% endfor %}
@@ -82,7 +83,8 @@
 		</div>
 
 		<div class="mt-4 text-end">
-			<button type="submit" class="btn btn-secondary">💾 Enregistrer les modifications</button>
+			<button type="submit" class="btn btn-primary">
+				Enregistrer les modifications</button>
 		</div>
 
 		{{ form_end(form) }}

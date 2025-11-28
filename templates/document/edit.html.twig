@@ -9,10 +9,21 @@
 <div style="display:flex; gap:2rem;">
     <div style="flex:1;">
     {{ form_start(form) }}
-    {{ form_row(form.filename) }}
-    {{ form_row(form.type) }}
-    {{ form_row(form.intervention) }}
-    {{ form_row(form.extractedText) }}
+    {{ form_start(form) }}
+
+{% for docForm in form.documents %}
+    <div class="card p-3 mb-3">
+
+        {{ form_row(docForm.file) }}
+        {{ form_row(docForm.type) }}
+          {{ form_row(docForm.intervention) }}
+        {{ form_row(docForm.extractedText) }}
+         {% if docForm.filename is defined %}
+            {{ form_row(docForm.filename) }}
+        {% endif %}       
+    </div>
+{% endfor %}
+
             <button class="btn btn-primary">Enregistrer</button>
         {{ form_end(form) }}
     </div>

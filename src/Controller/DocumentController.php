@@ -90,7 +90,7 @@ final class DocumentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $file */
-            $file = $form->get('filename')->getData();
+            $file = $form->get('file')->getData();
             if ($file) {
                 $newFilename = uniqid() . '.' . $file->guessExtension();
                 $uploadDir = $this->getParameter('documents_directory');
@@ -98,6 +98,7 @@ final class DocumentController extends AbstractController
 
                 $document->setFilename($newFilename);
                 $document->setPath('/uploads/documents/' . $newFilename);
+                dump($document->getPath());
 
                 $em->persist($document);
                 $em->flush();

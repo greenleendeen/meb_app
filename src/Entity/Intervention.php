@@ -163,9 +163,19 @@ class Intervention
         return $this->documents;
     }
 
-    public function setDocuments(): Collection
+    public function setDocuments(Collection $documents): static
     {
-        return $this->documents;
+        // Simplement remplacer la collection sans détacher les anciens documents
+        $this->documents = $documents;
+
+        // Assurer la liaison bidirectionnelle si nécessaire
+        foreach ($documents as $document) {
+            if ($document->getIntervention() !== $this) {
+                $document->setIntervention($this);
+            }
+        }
+
+        return $this;
     }
 
     public function addDocument(Document $document): static

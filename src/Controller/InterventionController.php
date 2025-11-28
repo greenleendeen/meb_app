@@ -48,6 +48,19 @@ final class InterventionController extends AbstractController
             foreach ($intervention->getDocuments() as $document) {
 
                 /** @var UploadedFile|null $file */
+                $uploadedFile = $form->get('file')->getData(); // champ FileType
+if ($uploadedFile) {
+    $filename = uniqid() . '.' . $uploadedFile->guessExtension();
+    $uploadedFile->move($this->getParameter('documents_directory'), $filename);
+
+    $document = new Document();
+    $document->setFilename($filename);
+    $document->setPath('uploads/documents/' . $filename);
+    $document->setIntervention($intervention);
+
+    $intervention->addDocument($document);
+    $em->persist($document);
+}
                 $file = $document->getFile();
 
                 //  Si aucun fichier n’a été uploadé → on ignore ce document
@@ -118,7 +131,7 @@ final class InterventionController extends AbstractController
 
 
     /** Affiche le détail d'une intervention */
-    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    #[Route('/{id<\d+>}', name: 'show', methods: ['GET'])]
     public function show(Intervention $intervention): Response
     {
         //show.html

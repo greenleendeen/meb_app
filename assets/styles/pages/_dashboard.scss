@@ -1,0 +1,129 @@
+// assets/styles/_dashboard.scss
+
+$bg: #fbfbfa;
+$accent: #e6e3c2;
+$card-bg: #ffffff;
+$muted: #6c757d;
+$primary: #3b82f6;
+
+// Layout
+.app-shell {
+  background: $bg;
+}
+
+.dashboard-wrap {
+  display: flex;
+  gap: 1rem;
+}
+
+/* sidebar */
+.sidebar {
+  width: 72px;
+  background: linear-gradient(180deg, #fff, #fafafa);
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(18,18,18,.06);
+  padding-top: 1rem;
+
+  .logo { 
+    height: 48px; width: 48px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .nav-icon {
+    width:44px; height:44px;
+  }
+}
+
+/* left list column */
+.col-left {
+  width: 320px;
+
+  .tracking-list {
+    max-height: 720px;
+    overflow-y: auto;
+    padding-right: 6px;
+  }
+
+  .track-card {
+    background: linear-gradient(180deg, #f5f6ea, #f1f2e3);
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.04);
+
+    .timeline {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      li { padding: 6px 0; font-size: .875rem; color: $muted; }
+    }
+  }
+}
+
+/* center */
+.col-center {
+  flex: 1;
+  min-width: 680px;
+
+  .center-card {
+    height: 760px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .truck-area {
+    width: 240px;
+    .truck-img { width: 240px; height: auto; object-fit: cover; }
+    .plate { background: #fff; display:inline-block; margin-top: .5rem; font-weight:600; }
+  }
+
+  .metrics {
+    .metric-card {
+      width: 150px;
+      background: #fff;
+      border-radius: 12px;
+      text-align: left;
+      padding: 12px;
+      .metric-value { font-size: 1.6rem; font-weight:700; }
+      .metric-label { color: $muted; }
+    }
+  }
+
+  .map-area {
+    width: 300px;
+    #small-map { height: 220px; background: #f8f9fa; border-radius: 12px; }
+  }
+
+  .driver-card {
+    width: 220px;
+    background: linear-gradient(180deg,#fff,#fafafa);
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+/* right */
+.col-right {
+  width: 360px;
+
+  .map-large {
+    height: 760px;
+    #main-map { height: 100%; background: #eef2f6; }
+  }
+}
+
+/* small adjustments */
+.avatar {
+  width:36px; height:36px; object-fit:cover;
+}
+
+.metric-card, .track-card, .driver-card {
+  transition: transform .12s ease, box-shadow .12s ease;
+  &:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
+}
+
+/* responsive */
+@media (max-width: 1200px) {
+  .dashboard-wrap { flex-direction: column; }
+  .sidebar { width: 56px; }
+  .col-left, .col-right { width: 100%; order: 2; }
+  .col-center { order: 1; min-width: auto; width: 100%; }
+}

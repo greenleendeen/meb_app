@@ -33,8 +33,7 @@ final class CalendarController extends AbstractController
 
         $start = $request->query->get('start');
         $end = $request->query->get('end');
-        $technicienId = $request->query->get('technicien');
-
+        $technicienId = $request->query->get('tech'); // correspond au param envoyé par JS
         if (!$start || !$end) {
             return $this->json([]);
         }

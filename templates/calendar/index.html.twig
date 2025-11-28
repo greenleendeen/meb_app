@@ -1,78 +1,81 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Planning des interventions{% endblock %}
+{% block title %}Planning des interventions
+{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
-    <h1 class="mb-4">📅 Planning des interventions</h1>
-    <select id="technicienFilter" class="form-select mb-3">
-        <option value="">Tous les techniciens</option>
-        {% for technicien in techniciens %}
-            <option value="{{ technicien.id }}">{{ technicien.nom }}</option>
-        {% endfor %}
-    </select>
-<!-- -->
-    <div class="mb-3 d-flex gap-2 flex-wrap">
-  <button class="btn btn-sm btn-outline-secondary" data-tech-id="">
-    Tous
-  </button>
-  {% set colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6610f2'] %}
-  {% for technicien in techniciens %}
-    {% set color = colors[loop.index0 % colors|length] %}
-    <button
-      class="btn btn-sm"
-      style="background-color: {{ color }}; color: white;"
-      data-tech-id="{{ technicien.id }}"
-    >
-      {{ technicien.nom }} 
-    </button>
-  {% endfor %}
-</div>
+	<div class="container mt-4">
+		<h1 class="mb-4">📅 Planning des interventions</h1>
+		<select id="technicienFilter" class="form-select mb-3">
+			<option value="">Tous les techniciens</option>
+			{% for technicien in techniciens %}
+				<option value="{{ technicien.id }}">{{ technicien.nom }}</option>
+			{% endfor %}
+		</select>
+		<!-- -->
+		<div class="mb-3 d-flex gap-2 flex-wrap">
+			<button class="btn btn-sm btn-outline-secondary" data-tech-id="">
+				Tous
+			</button>
+			<!-- je génére les boutons avec les couleurs de la bdd-->
+			{% for technicien in techniciens %}
+        {# Si couleur définie dans la BDD, on prend celle-ci, sinon couleur par défaut #}
+        {% set btnColor = technicien.couleur is not empty ? technicien.couleur : '#3d688eff' %}
+        <button 
+            class="btn btn-sm" 
+            style="background-color: {{ btnColor }}; color: white;" 
+            data-tech-id="{{ technicien.id }}"
+        >
+            {{ technicien.nom }}
+        </button>
+    {% endfor %}
+
+	</div>
+
+	<div class="container mt-4" data-controller="calendar">
+		<div id="calendar" data-calendar-target="calendar"></div>
+	</div>
 
 
+	<!-- Modal d’édition -->
+	<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-primary text-white">
+					<h5 class="modal-title" id="editEventLabel">Modifier l’intervention</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" id="editEventId">
 
-    <div id="calendar"></div>
-</div>
+					<div class="mb-3">
+						<label class="form-label">Heure de début</label>
+						<input type="datetime-local" class="form-control" id="editStart">
+					</div>
 
-<!-- Modal d’édition -->
-<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="editEventLabel">Modifier l’intervention</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="editEventId">
+					<div class="mb-3">
+						<label class="form-label">Heure de fin</label>
+						<input type="datetime-local" class="form-control" id="editEnd">
+					</div>
 
-        <div class="mb-3">
-          <label class="form-label">Heure de début</label>
-          <input type="datetime-local" class="form-control" id="editStart">
-        </div>
+					<div class="mb-3">
+						<label class="form-label">Technicien</label>
+						<select class="form-select" id="editTechnicien">
+							{% for tech in techniciens %}
+								<option value="{{ tech.id }}">{{ tech.nom }}</option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
 
-        <div class="mb-3">
-          <label class="form-label">Heure de fin</label>
-          <input type="datetime-local" class="form-control" id="editEnd">
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Technicien</label>
-          <select class="form-select" id="editTechnicien">
-            {% for tech in techniciens %}
-              <option value="{{ tech.id }}">{{ tech.nom }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-primary" id="saveEventBtn">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+					<button type="button" class="btn btn-primary" id="saveEventBtn">Enregistrer</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 
-{{ vite_entry_script_tags('calendar') }}
+	{{ vite_entry_script_tags('calendar') }}
 {% endblock %}

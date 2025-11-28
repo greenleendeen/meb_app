@@ -6,10 +6,15 @@
 	<div class="container mt-4 p-4 bg-white rounded-xl shadow">
 
 		<div class="d-flex justify-content-between align-items-center mb-4 no-print">
-			<h1>Détails de l'intervention</h1>
+			<h5>Détails de l'intervention</h5>
 			<!--bouton pour revenir à l'accueil  -->
 			<li style="display: inline; margin: 0 15px;">
 				<a href="{{ path('app_home') }}">← Retour à l'accueil</a>
+			</li>
+<!-- Bouton pour modifier l'intervention -->
+			<li style="display: inline; margin: 0 15px;">
+			   <a href ="{{ path('app_intervention_edit', {'id': intervention.id}) }}" class="btn btn-primary">Modifier</a>
+				
 			</li>
 			<a href="#" onclick="window.print()" class="btn btn-outline-primary">
 				🖨️ Imprimer / PDF
@@ -40,15 +45,12 @@
   data-end="{{ intervention.heureFin ? intervention.heureFin|date('H:i:s') : '' }}"
 >
 </div>
-
 		</div>
-
-
 		<!-- Compte rendu -->
 		<div class="card p-4 shadow-sm mb-4">
 			<h5>
 				Compte rendu / Détails</h5>
-			<div style="min-height:120mm; border:1px solid #ccc; padding:10px; overflow:auto;">
+			<div style="min-height:120mm; border-top:1px solid #ccc; padding:10px; overflow:auto;">
 				{% if intervention.detail %}
 					<p style="white-space: pre-wrap;">{{ intervention.detail }}</p>
 				{% else %}
@@ -59,8 +61,8 @@
 				{% endif %}
 			</div>
 		</div>
-
-		<!-- Documents liés -->
+	<!-- je cache cette partie pour l'instant
+		 Documents liés 
 		<div class="card p-4 shadow-sm">
 			<h5>📎 Documents liés</h5>
 
@@ -78,7 +80,7 @@
 				<p class="text-muted fst-italic">Aucun document lié à cette intervention.</p>
 			{% endif %}
 		</div>
-		<!-- Afficher le texte extrait-->
+		 Afficher le texte extrait
 		<div class="card p-3 mt-4">
 			<h5>
 				Texte extrait automatiquement</h5>
@@ -102,5 +104,5 @@
 			{% endif %}
 		</div>
 
-	</div>
+	</div>-->
 {% endblock %}

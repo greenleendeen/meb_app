@@ -1,0 +1,117 @@
+{# templates/dashboard.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block body %}
+<div class="dashboard-container d-flex flex-column vh-100">
+    <div class="dashboard-main flex-grow-1 d-flex">
+        <!-- SIDEBAR -->
+        <nav class="sidebar bg-dark text-white p-3 d-flex flex-column align-items-center">
+            <a href="#" class="nav-link text-white mb-4"><i class="bi bi-calendar3"></i><br>Calendrier</a>
+            <a href="#" class="nav-link text-white mb-4"><i class="bi bi-list-task"></i><br>Interventions</a>
+            <a href="#" class="nav-link text-white mb-4"><i class="bi bi-search"></i><br>Recherche</a>
+            <a href="#" class="nav-link text-white mt-auto"><i class="bi bi-gear"></i><br>Paramètres</a>
+        </nav>
+
+<!-- LISTE DES TECHNICIENS + INTERVENTIONS -->
+<aside class="techniciens-list bg-light p-3 overflow-auto">
+
+    <h5 class="fw-bold mb-3">Interventions du jour</h5>
+
+    {% for item in techData %}
+        {% set tech = item.user %}
+        {% set interventions = item.interventions %}
+
+        <div class="card mb-3 shadow-sm"
+             style="border-left: 6px solid {{ tech.couleur }};">
+             
+            <div class="card-body p-2">
+
+                <!-- NOM DU TECHNICIEN -->
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong class="text-dark">{{ tech.nom }}</strong>
+                       <span class="badge bg-primary ms-2">
+                {{ item.nbInterventions }} interventions aujourd’hui
+            </span>
+                </div>
+
+                <!-- INTERVENTIONS DU JOUR -->
+                {% if interventions is not empty %}
+
+                    {% for inter in interventions %}
+                        <div class="small mb-2 p-1 rounded"
+                             style="background: rgba(0,0,0,0.03); border-left: 3px solid {{ tech.couleur }};">
+
+                            <div class="fw-bold">
+                                {{ inter.reference }}
+                            </div>
+
+                            <div class="text-muted">
+                                {{ inter.clientNom }} – {{ inter.adresse }}
+                            </div>
+
+                            <div class="text-muted small">
+                                {{ inter.heureDebut|date('H:i') }} → {{ inter.heureFin|date('H:i') }}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                {% else %}
+                    <p class="small text-muted fst-italic">Aucune intervention aujourd’hui</p>
+                {% endif %}
+
+            </div>
+        </div>
+
+    {% endfor %}
+</aside>
+
+        <!-- CALENDRIER -->
+        <main class="calendar-zone flex-grow-1 bg-white p-3">
+            <div id="calendar"></div>
+        </main>
+
+        <!-- CARTE -->
+        <section class="map-zone p-3 bg-light">
+            <h6 class="fw-bold mb-3">Localisation</h6>
+            <div id="map" class="rounded shadow-sm" style="width:100%;height:400px;background:#eaeaea;"></div>
+        </section>
+    </div>
+
+    <!-- FOOTER / TECHNICIENS -->
+    <footer class="technicien-footer bg-white border-top p-3">
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+            {% for item in techData %}
+    {% set tech = item.user %}
+    {% set interventions = item.interventions %}
+                <div class="card tech-card d-flex align-items-center p-2 shadow-sm" style="border-left: 4px solid {{ tech.couleur }};">
+                    <img src="{{ tech.nom }}" class="rounded-circle me-2" width="40" height="40">
+                    <div>
+                        <strong>{{ tech.nom }}</strong><br>
+                      
+                        <span class="badge bg-secondary mt-1">{{ item.nbInterventions }} interventions</span>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted">Aucun technicien trouvé.</p>
+            {% endfor %}
+        </div>
+    </footer>
+</div>
+
+
+{# JS hooks for maps or interactivity #}
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    // placeholder map init - toi : integrate leaflet / google maps / mapbox
+    document.addEventListener('DOMContentLoaded', function(){
+      const sm = document.getElementById('small-map');
+      if (sm) sm.style.minHeight = '200px';
+      const mm = document.getElementById('main-map');
+      if (mm) mm.style.background = 'linear-gradient(#f8f9fa,#fff)'; // placeholder
+    });
+  </script>
+{% endblock %}
+{% endblock %}

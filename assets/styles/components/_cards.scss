@@ -1,0 +1,7 @@
+.card {
+    // sécurité : au cas où Bootstrap applique autre chose via CSS variables
+    --bs-card-box-shadow: none;
+    --bs-card-border-width: 0;
+    --bs-card-border-radius: 0;
+    box-shadow: none !important;
+}

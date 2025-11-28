@@ -3,125 +3,166 @@ import { Calendar } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import listPlugin from "@fullcalendar/list";
 import frLocale from "@fullcalendar/core/locales/fr";
-import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid"; //le plugin supplémentaire pour afficher planning à la verticale
 
-
-export function initCalendar() {
-    const calendarEl = document.getElementById("calendar");
-    const technicienSelect = document.getElementById("technicienFilter");
-    const techButtons = document.querySelectorAll("[data-tech-id]");
-    let selectedTech = "";
-
+/**
+ * Initialise le calendrier FullCalendar
+ * @param {HTMLElement} calendarEl
+ */
+export function initCalendar(calendarEl) {
     if (!calendarEl) return;
 
+    console.log("InitCalendar lancé !", calendarEl);
+
+    let selectedTech = ""; // valeur par défaut = tous les techniciens
+    const technicienSelect = document.getElementById("technicienFilter");
+    const techButtons = document.querySelectorAll("[data-tech-id]");
+
     const calendar = new Calendar(calendarEl, {
-        plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+        plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
         initialView: "timeGridWeek",
         locale: frLocale,
-        height: "auto",
-        editable: true, //  Permet le drag & drop
-        eventResizableFromStart: true,  // permet de redimensionner depuis le début
         selectable: true,
+        editable: true,
+        eventResizableFromStart: true,
         eventDurationEditable: true,
         eventStartEditable: true,
-
-
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridDay,timeGridWeek,dayGridMonth' // boutons visibles
-        },
-        slotMinTime: "07:00:00",
-        slotMaxTime: "17:00:00",
-        weekends: false,
-        allDaySlot: false,
-        slotDuration: "00:30:00",
         height: "auto",
 
-        // Chaque événement lié à un technicien
-        events: async function (fetchInfo, successCallback, failureCallback) {
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,listWeek,timeGridDay"
+        },
+
+        slotMinTime: "07:00:00",
+        slotMaxTime: "17:00:00",
+        slotDuration: "00:30:00",
+        weekends: false,
+        allDaySlot: false,
+
+        views: {
+            listWeek: { buttonText: "Semaine" }
+        },
+
+        /** ------------------------------
+         *  FETCH EVENTS FILTRÉS PAR TECH
+         * ------------------------------ */
+        events: async function (fetchInfo, success, fail) {
             try {
                 const res = await fetch(
-                    `/calendar/events?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`
+                    `/calendar/events?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}&tech=${selectedTech}`
                 );
-                const events = await res.json();
-                successCallback(events);
+                success(await res.json());
             } catch (err) {
-                failureCallback(err);
+                fail(err);
             }
         },
 
-        eventClick: (info) => {
-            window.location.href = `/intervention/${info.event.id}`;
-        },
-
-        // Liste des techniciens = colonnes
-        resources: async function (fetchInfo, successCallback, failureCallback) {
+        /** ------------------------------
+         *  RESSOURCES (TECHNICIENS)
+         * ------------------------------ */
+        resources: async function (fetchInfo, success, fail) {
             try {
                 const res = await fetch("/calendar/techniciens");
                 const data = await res.json();
 
-                successCallback(
-                    data.map((t) => ({
+                success(
+                    data.map(t => ({
                         id: t.id,
                         title: t.nom,
                         color: t.couleur || "#3788d8",
                     }))
                 );
             } catch (err) {
-                failureCallback(err);
+                fail(err);
             }
         },
-        // Déplacement ou redimensionnement direct
+
+        /** ------------------------------
+         *  CLIC → PAGE DÉTAIL
+         * ------------------------------ */
+        eventClick: info => {
+            window.location.href = `/intervention/${info.event.id}`;
+        },
+
+        /** ------------------------------
+         *  DRAG / RESIZE = UPDATE AJAX
+         * ------------------------------ */
         eventDrop: info => updateEvent(info.event),
         eventResize: info => updateEvent(info.event),
 
-        //  Affichage personnalisé (inchangé)
+        /** ------------------------------
+         *  RENDU PERSONNALISÉ
+         * ------------------------------ */
         eventDidMount: info => {
-            const technicien = info.event.extendedProps.technicien || "";
-            const start = info.event.start;
-            const end = info.event.end;
-            const heureDebut = start ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-            const heureFin = end ? end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-            const adresse = info.event.extendedProps.adresse || 'Adresse inconnue';
+            const e = info.event;
 
-            info.el.innerHTML = '';
-            const textDiv = document.createElement('div');
-            textDiv.textContent = `${heureDebut} - ${heureFin} : ${adresse}`;
-            textDiv.style.whiteSpace = 'normal';
-            textDiv.style.textAlign = 'center';
-            textDiv.style.padding = '2px 4px';
-            info.el.appendChild(textDiv);
+            const heureDebut = e.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const heureFin = e.end?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || "";
+            const adresse = e.extendedProps.adresse || "Adresse inconnue";
 
-            if (info.event.extendedProps.color) {
-                info.el.style.backgroundColor = info.event.extendedProps.color;
-                info.el.style.borderColor = info.event.extendedProps.color;
-                textDiv.style.color = '#fff';
+            info.el.innerHTML = "";
+            const div = document.createElement("div");
+            div.textContent = `${heureDebut} - ${heureFin} : ${adresse}`;
+            div.style.textAlign = "center";
+            div.style.whiteSpace = "normal";
+            div.style.padding = "2px 4px";
+
+            // Couleur = technicien
+            if (e.extendedProps.color) {
+                info.el.style.background = e.extendedProps.color;
+                info.el.style.borderColor = e.extendedProps.color;
+                div.style.color = "#fff";
             }
-            info.el.setAttribute(
-                "title",
-                `${technicien}\n${start} - ${end}\n${adresse}`
-            );
 
-            // Ajoute un écouteur de double-clic pour ouvrir la modale d'édition
-            info.el.addEventListener("dblclick", () => {
-                const event = info.event;
-                const modal = document.getElementById("editEventModal");
+            info.el.appendChild(div);
 
-                modal.querySelector("#editEventId").value = event.id;
-                modal.querySelector("#editStart").value = event.start.toISOString().slice(0, 16);
-                modal.querySelector("#editEnd").value = event.end.toISOString().slice(0, 16);
-                modal.querySelector("#editTechnicien").value = event.extendedProps.technicienId || "";
-
-                const modalInstance = new bootstrap.Modal(modal);
-                modalInstance.show();
-            });
-        },
-
+            // Double-clic = modale
+            info.el.addEventListener("dblclick", () => openEditModal(e));
+        }
     });
-    // Événement : quand on clique sur "Enregistrer"
-    document.getElementById("saveEventBtn").addEventListener("click", async () => {
+
+    calendar.render();
+
+    /** ------------------------------
+     *  FILTRES TECHNICIENS (select + boutons)
+     * ------------------------------ */
+    technicienSelect?.addEventListener("change", e => {
+        selectedTech = e.target.value;
+        resetButtons();
+        calendar.refetchEvents();
+    });
+
+    techButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            selectedTech = btn.dataset.techId;
+            resetButtons();
+            btn.classList.add("active");
+            technicienSelect.value = selectedTech;
+            calendar.refetchEvents();
+        });
+    });
+
+    function resetButtons() {
+        techButtons.forEach(b => b.classList.remove("active"));
+    }
+
+    /** --------------------------
+     *  MODALE ÉDITION
+     * -------------------------- */
+    function openEditModal(event) {
+        const modal = document.getElementById("editEventModal");
+        modal.querySelector("#editEventId").value = event.id;
+        modal.querySelector("#editStart").value = event.start.toISOString().slice(0, 16);
+        modal.querySelector("#editEnd").value = event.end.toISOString().slice(0, 16);
+        modal.querySelector("#editTechnicien").value = event.extendedProps.technicienId || "";
+
+        new bootstrap.Modal(modal).show();
+    }
+
+    document.getElementById("saveEventBtn")?.addEventListener("click", async () => {
         const id = document.getElementById("editEventId").value;
         const start = document.getElementById("editStart").value;
         const end = document.getElementById("editEnd").value;
@@ -130,106 +171,57 @@ export function initCalendar() {
         const res = await fetch("/calendar/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, start, end, technicien }),
+            body: JSON.stringify({ id, start, end, technicien })
         });
 
         if (res.ok) {
             bootstrap.Modal.getInstance(document.getElementById("editEventModal")).hide();
             calendar.refetchEvents();
+            showToast("Intervention mise à jour !");
         } else {
-            alert("Erreur lors de la mise à jour de l’intervention");
+            showToast("Erreur lors de la mise à jour", "#e74c3c");
         }
     });
-    calendar.render();
 
-    technicienSelect?.addEventListener("change", e => {
-        selectedTech = e.target.value;
-        calendar.refetchEvents();
-        resetButtonStates();
-    });
-
-    techButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            selectedTech = btn.dataset.techId || "";
-            resetButtonStates();
-            btn.classList.add("active");
-            technicienSelect.value = selectedTech;
-            calendar.refetchEvents();
-        });
-    });
-
-    function resetButtonStates() {
-        techButtons.forEach(b => b.classList.remove("active"));
-    }
-
-    //  Fonction de mise à jour (AJAX)
-    function updateEvent(event) {
-        const data = {
-            start: event.start.toISOString(),
-            end: event.end ? event.end.toISOString() : null,
-        };
-
-        fetch(`/calendar/update/${event.id}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-            },
-            body: JSON.stringify(data),
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Erreur de mise à jour");
-                return res.json();
-            })
-            .then(() => console.log(" Intervention mise à jour"))
-            .catch(err => alert(" Erreur : " + err.message));
-    }
-
+    /** --------------------------
+     *  UPDATE AJAX DRAG & DROP
+     * -------------------------- */
     function updateEvent(event) {
         fetch("/calendar/update", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 id: event.id,
                 start: event.start.toISOString(),
-                end: event.end ? event.end.toISOString() : event.start.toISOString(),
-            }),
-        })
-            .then((res) => {
-                if (!res.ok) throw new Error("Erreur de mise à jour");
-                return res.json();
+                end: event.end?.toISOString() || event.start.toISOString()
             })
-            .then((data) => {
+        })
+            .then(res => res.json())
+            .then(data => {
                 if (data.success) {
-                    showToast(" Intervention mise à jour !");
+                    showToast("Intervention mise à jour !");
                 } else {
-                    showToast((data.error || "Erreur inconnue"), "#e67e22");
+                    showToast(data.error || "Erreur inconnue", "#e67e22");
                 }
             })
-            .catch((err) => {
-                console.error(err);
-                showToast(" Erreur de mise à jour", "#e74c3c");
-            });
+            .catch(() => showToast("Erreur de mise à jour", "#e74c3c"));
     }
 
+    /** --------------------------
+     *  TOAST VISUEL
+     * -------------------------- */
     function showToast(message, color = "#2ecc71") {
         const toast = document.createElement("div");
         toast.className = "toast";
-        toast.style.backgroundColor = color;
+        toast.style.background = color;
         toast.textContent = message;
 
         document.body.appendChild(toast);
 
-        // Affiche le toast
-        setTimeout(() => toast.classList.add("show"), 50);
-
-        // Le supprime après 3 secondes
+        setTimeout(() => toast.classList.add("show"), 10);
         setTimeout(() => {
             toast.classList.remove("show");
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
-
 }
