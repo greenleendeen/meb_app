@@ -12,9 +12,10 @@
 		<div
 			class="row g-4">
 			<!-- Colonne gauche : infos intervention -->
-			<div class="col-md-6">
-				<div class="card shadow-sm p-3">
-					<h4 class="mb-3">Informations principales</h4>
+			   <div class="col-lg-4 col-md-5">
+            <div class="card shadow-sm p-4">
+                <h4 class="mb-3">Informations principales</h4>
+
 					{{ form_row(form.clientNom) }}
 					{{ form_row(form.reference) }}
 					{{ form_row(form.adresse) }}
@@ -30,13 +31,13 @@
 			</div>
 
 			<!-- Colonne droite : documents et PDF -->
-			<div class="col-md-6">
+		  <div class="col-lg-8 col-md-7">
 				<div class="card shadow-sm p-3 mb-3">
 					<h4 class="mb-3">Documents associés</h4>
 					<!-- IFrame pour le PDF -->
-					<div class="card shadow-sm p-3">
+					   <div class="card shadow-sm p-3 mb-3">
 						<h4 class="mb-3">Aperçu PDF</h4>
-						<iframe id="pdfViewer" style="width:100%; height:500px; border:1px solid #ccc;" src="" class="d-none"></iframe>
+						<iframe id="pdfViewer" style="width:100%; height:700px; border:1px solid #ccc;" src="" class="d-none"></iframe>
 						<p id="pdfPlaceholder" class="text-muted fst-italic text-center">
 							Le PDF s'affichera ici après sélection.
 						</p>

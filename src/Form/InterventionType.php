@@ -34,12 +34,14 @@ use App\Entity\Intervention;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType; // <-- IMPORTANT
 use App\Form\DocumentType; // importer le DocumentType 
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Entity\User;
+
 
 class InterventionType extends AbstractType
 {
@@ -55,18 +57,20 @@ class InterventionType extends AbstractType
             ->add('demande', TextareaType::class, ['required' => false])
             ->add('detail', TextareaType::class, ['required' => false])
 
-            ->add('documents', CollectionType::class, [
-                'entry_type' => DocumentType::class,
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
-                'prototype' => true, // utile pour ajouter dynamiquement via JS
-                'label' => 'Documents associés',
-                'entry_options' => [
-                    'is_edit' => $isEdit, // passe l’option à chaque DocumentType
-                ],
+->add('documents', CollectionType::class, [
+    'entry_type' => DocumentType::class,
+    'entry_options' => ['is_edit' => $isEdit],
+    'allow_add' => true,
+    'allow_delete' => true,
+    'by_reference' => false,
+])
+            // j'ajoute des nouveaux documents 
+            ->add('newDocuments', FileType::class, [
+                'mapped' => false,
+                'multiple' => true,
+                'required' => false,
+                'label' => 'Ajouter de nouveaux documents'
             ])
-
             //j'ajoute les champs dans le formulaire pour les testes et pour la suite
             ->add('dateIntervention', DateType::class, [
                 'widget' => 'single_text',

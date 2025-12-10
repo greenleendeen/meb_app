@@ -29,106 +29,108 @@ final class InterventionController extends AbstractController
             'interventions' => $interventionRepository->findAll(),
         ]);
     }
+
     /** crée une nouvelle intervention  !!! il faudra ajouter $intervention->setCreatedBy($this->getUser()); pour gerer le 'user'*/ 
-    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, PdfExtractor $pdfExtractor): Response
-    {
-        $intervention = new Intervention();
-        $form = $this->createForm(InterventionType::class, $intervention, [
-            'is_edit' => false
-        ]);
-        $form->handleRequest($request);
+   #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
+public function new(Request $request, EntityManagerInterface $em, PdfExtractor $pdfExtractor): Response
+{
+    $intervention = new Intervention();
+    $form = $this->createForm(InterventionType::class, $intervention, [
+        'is_edit' => false
+    ]);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+    if ($form->isSubmitted() && $form->isValid()) {
+        $uploadDir = $this->getParameter('documents_directory');
 
-            //  On prépare un tableau pour stocker uniquement les documents valides
-            $validDocuments = [];
-            dump($form->getErrors(true, false));
-            //  Parcours de tous les documents soumis dans le formulaire
-            foreach ($intervention->getDocuments() as $document) {
+        // 1) --- Traitement des documents fournis dans la collection 'documents' (DocumentType entries)
+        $validDocuments = [];
+        foreach ($intervention->getDocuments() as $document) {
+            // DocumentType a un champ 'file' mapped => false
+            $file = $document->getFile(); // UploadedFile|null (méthode getFile() dans l'entité Document attendue)
+            if (!$file) {
+                // si aucun fichier fourni pour cette entrée, on ignore/supprime l'entry
+                continue;
+            }
 
-                /** @var UploadedFile|null $file */
-                $uploadedFile = $form->get('file')->getData(); // champ FileType
-if ($uploadedFile) {
-    $filename = uniqid() . '.' . $uploadedFile->guessExtension();
-    $uploadedFile->move($this->getParameter('documents_directory'), $filename);
+            $filename = uniqid('', true) . '.' . $file->guessExtension();
+            $file->move($uploadDir, $filename);
 
-    $document = new Document();
-    $document->setFilename($filename);
-    $document->setPath('uploads/documents/' . $filename);
-    $document->setIntervention($intervention);
+            $document->setFilename($filename);
+            $document->setPath('uploads/documents/' . $filename);
+            $document->setIntervention($intervention);
 
-    $intervention->addDocument($document);
-    $em->persist($document);
-}
-                $file = $document->getFile();
+            // extraction texte
+            $fullPath = $uploadDir . '/' . $filename;
+            $text = $pdfExtractor->extractText($fullPath);
+            $document->setExtractedText($text);
 
-                //  Si aucun fichier n’a été uploadé → on ignore ce document
-                if (!$file) {
-                    $intervention->removeDocument($document); //  supprime proprement
-                    continue;
-                }
+            // extractions structurées
+            $data = $pdfExtractor->extractData($text);
+            if (!empty($data['client'])) {
+                $intervention->setClientNom($data['client']);
+            }
+            if (!empty($data['adresse'])) {
+                $intervention->setAdresse($data['adresse']);
+            }
+            if (!empty($data['numeroCommande'])) {
+                $intervention->setReference($data['numeroCommande']);
+            }
 
-                //  Générer un nom unique pour le fichier
+            $validDocuments[] = $document;
+            $em->persist($document); // ok même si cascade persist présent, harmless
+        }
+
+        // 2) --- Traitement des fichiers envoyés via le champ newDocuments (multiple FileType unmapped)
+        /** @var UploadedFile[] $uploadedFiles */
+        $uploadedFiles = $form->get('newDocuments')->getData();
+        if (is_array($uploadedFiles)) {
+            foreach ($uploadedFiles as $file) {
+                if (!$file) continue;
+                $document = new Document();
+
                 $filename = uniqid('', true) . '.' . $file->guessExtension();
-
-                //  Déplacer le fichier dans le dossier d’upload
-                $uploadDir = $this->getParameter('documents_directory');
                 $file->move($uploadDir, $filename);
 
-                //  Enregistrer les infos dans l’entité Document
                 $document->setFilename($filename);
                 $document->setPath('uploads/documents/' . $filename);
                 $document->setIntervention($intervention);
 
-                //  Extraction automatique du texte
-                $fullPath = $uploadDir . '/' . $filename;
-                $text = $pdfExtractor->extractText($fullPath);
+                $text = $pdfExtractor->extractText($uploadDir . '/' . $filename);
                 $document->setExtractedText($text);
 
-                //  Extraire des données structurées
                 $data = $pdfExtractor->extractData($text);
-                if (isset($data['client'])) {
+                if (!empty($data['client'])) {
                     $intervention->setClientNom($data['client']);
                 }
-                if (isset($data['adresse'])) {
+                if (!empty($data['adresse'])) {
                     $intervention->setAdresse($data['adresse']);
                 }
-                if (isset($data['numeroCommande'])) {
+                if (!empty($data['numeroCommande'])) {
                     $intervention->setReference($data['numeroCommande']);
                 }
 
-                //  Ajouter le document traité dans la liste finale
                 $validDocuments[] = $document;
-
                 $em->persist($document);
             }
-
-            // Remplacer la collection de documents par uniquement les valides
-            $intervention->setDocuments(new \Doctrine\Common\Collections\ArrayCollection($validDocuments));
-
-            //  Enregistrer en base
-
-            $em->persist($intervention);
-            $em->flush();
-
-            $this->addFlash('success', 'Intervention créée avec succès ! Données extraites automatiquement.');
-
-            //
-            //  dd($intervention->getId());
-
-            //  Redirection après succès
-            return $this->redirectToRoute('app_intervention_show', [
-                'id' => $intervention->getId(),
-            ]);
         }
 
-        //  Affichage du formulaire
-        return $this->render('intervention/new.html.twig', [
-            'form' => $form,
-        ]);
+        // remplacer la collection par les documents valides pour éviter les entrées vides
+        $intervention->setDocuments(new \Doctrine\Common\Collections\ArrayCollection($validDocuments));
+
+        // Persister l'intervention (et documents si cascade)
+        $em->persist($intervention);
+        $em->flush();
+
+        $this->addFlash('success', 'Intervention créée avec succès ! Données extraites automatiquement.');
+
+        return $this->redirectToRoute('app_intervention_show', ['id' => $intervention->getId()]);
     }
 
+    return $this->render('intervention/new.html.twig', [
+        'form' => $form,
+    ]);
+}
 
     /** Affiche le détail d'une intervention */
     #[Route('/{id<\d+>}', name: 'show', methods: ['GET'])]
@@ -142,74 +144,59 @@ if ($uploadedFile) {
     }
 
     /** Modifie une intervention existante */
-    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
-    public function edit(
-        Request $request,
-        Intervention $intervention,
-        EntityManagerInterface $em,
-        PdfExtractor $pdfExtractor
-    ): Response {
-        $form = $this->createForm(InterventionType::class, $intervention, [
-            'is_edit' => true
-        ]);
+   #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
+public function edit(
+    Request $request,
+    Intervention $intervention,
+    EntityManagerInterface $em,
+    PdfExtractor $pdfExtractor
+): Response {
+    $form = $this->createForm(InterventionType::class, $intervention, [
+        'is_edit' => true
+    ]);
+    $form->handleRequest($request);
 
-        $form->handleRequest($request);
+    if ($form->isSubmitted() && $form->isValid()) {
+        $uploadDir = $this->getParameter('documents_directory');
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        // 1) nouveaux fichiers depuis newDocuments (multiple FileType unmapped)
+        /** @var UploadedFile[] $uploadedFiles */
+        $uploadedFiles = $form->get('newDocuments')->getData();
+        if (is_array($uploadedFiles)) {
+            foreach ($uploadedFiles as $file) {
+                if (!$file) continue;
+                $document = new Document();
 
-            // Traiter tous les documents liés à cette intervention
-            foreach ($intervention->getDocuments() as $document) {
-                $file = $document->getFile(); // UploadedFile ou null
-
-                // Ignorer les documents sans fichier
-                if (!$file) {
-                    continue;
-                }
-
-                /** @var UploadedFile|null $file */
-                $file = $document->getFile();
-                if (!$file) continue; // Aucun fichier, on ignore ce document
-
-                // Générer un nom unique et déplacer le fichier
                 $filename = uniqid('', true) . '.' . $file->guessExtension();
-                $file->move($this->getParameter('documents_directory'), $filename);
+                $file->move($uploadDir, $filename);
 
-                // Enregistrer les infos dans l’entité
                 $document->setFilename($filename);
                 $document->setPath('uploads/documents/' . $filename);
                 $document->setIntervention($intervention);
 
-                // Extraction automatique via service
-                $text = $pdfExtractor->extractText($this->getParameter('documents_directory') . '/' . $filename);
+                $text = $pdfExtractor->extractText($uploadDir . '/' . $filename);
                 $document->setExtractedText($text);
 
-
-                // Optionnel : extraire des données structurées et remplir le formulaire
-                $data = $pdfExtractor->extractData($text);
-                if (isset($data['client'])) {
-                    $intervention->setClientNom($data['client']);
-                }
-                if (isset($data['adresse'])) {
-                    $intervention->setAdresse($data['adresse']);
-                }
-                if (isset($data['numeroCommande'])) {
-                    $intervention->setReference($data['numeroCommande']);
-                }
+                $em->persist($document);
             }
-
-            $em->persist($intervention);
-            $em->flush();
-
-            $this->addFlash('success', 'Intervention mise à jour avec succès !');
-
-            return $this->redirectToRoute('app_intervention_show', ['id' => $intervention->getId()]);
         }
 
-        return $this->render('intervention/edit.html.twig', [
-            'form' => $form,
-            'intervention' => $intervention,
-        ]);
+        // Optionnel : si tu autorises modification de documents existants via la collection,
+        // il faudrait traiter les fichiers fournis dans chaque DocumentType entry (similaire à new()).
+        // Ici on suppose que l'on ne modifie pas l'ancien fichier d'un Document existant mais on peut l'ajouter.
+
+        $em->persist($intervention);
+        $em->flush();
+
+        $this->addFlash('success', 'Intervention mise à jour avec succès !');
+        return $this->redirectToRoute('app_intervention_show', ['id' => $intervention->getId()]);
     }
+
+    return $this->render('intervention/edit.html.twig', [
+        'form' => $form,
+        'intervention' => $intervention,
+    ]);
+}
 
     /** Supprime une intervention (via POST + token CSRF)  */
     #[Route('/{id}/delete', name: 'delete', methods: ['POST'])]

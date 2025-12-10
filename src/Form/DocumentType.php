@@ -21,50 +21,38 @@ use App\Enum\DocumentType as DocumentEnum;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use App\Entity\Intervention;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DocumentType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
         $isEdit = $options['is_edit'];
 
-
-        // Affiché seulement en édition
         $builder
-            // Champ pour le fichier PDF / PJ compatibilité avec page création du document
-            //temporaire
             ->add('file', FileType::class, [
                 'label' => 'Fichier PDF ou image',
                 'mapped' => false,
-                'required' => $options['is_edit'] ? false : true,
+                'required' => !$isEdit,
             ])
             ->add('type', ChoiceType::class, [
                 'label' => 'Type de document',
-                'choices' => DocumentEnum::cases(),
-                'choice_value' => fn(?DocumentEnum $choice) => $choice?->value,
-                'choice_label' => fn(?DocumentEnum $choice) => $choice?->value,
-                'required' => false,
+                'choices' => array_combine(
+                    array_map(fn($e) => $e->value, DocumentEnum::cases()),
+                    DocumentEnum::cases()
+                ),
+                'choice_label' => fn(DocumentEnum $e) => $e->value,
+                'required' => true,
             ])
-
-            ->add('intervention', EntityType::class, [
-                'class' => Intervention::class,
-                'choice_label' => 'reference', // ou un autre champ
-            ])
-
             ->add('extractedText', TextareaType::class, [
+                'label' => 'Texte extrait du PDF',
                 'required' => false,
-                'label' => 'Texte extrait du PDF (modifiable)',
                 'attr' => ['rows' => 10],
             ]);
-        // Seulement en édition : afficher filename
+
         if ($isEdit) {
             $builder->add('filename', TextType::class, [
                 'label' => 'Nom du fichier',
@@ -77,7 +65,7 @@ class DocumentType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Document::class,
-            'is_edit' => false, // valeur par défaut
+            'is_edit' => false,
         ]);
     }
 }
