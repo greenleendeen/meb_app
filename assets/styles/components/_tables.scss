@@ -1,14 +1,22 @@
-.table-custom.table-hover > tbody > tr:hover > * {
-  --bs-table-color-state: var(--color-dark); // couleur texte au hover
-  --bs-table-bg-state: rgba(44, 95, 45, 0.1); // vert mousse transparent
+.table-custom {
+   thead.table-dark {
+   /* override Bootstrap vars */
+    --bs-table-bg: var(--color-primary);      // fond thead
+    --bs-table-color: #fff;                   // texte
+    --bs-table-border-color: rgba(255,255,255,0.15);
 
-  thead {
-    background-color: var(--color-primary); // vert mousse
-    color: #fff;
+
+    th {
+      font-weight: 600;
+      vertical-align: middle;
+    }
   }
 
-  tbody tr:hover {
-    background-color: rgba(44, 95, 45, 0.05); // hover léger en vert
+  tbody {
+    tr:hover > * {
+      --bs-table-color-state: var(--color-dark);
+      --bs-table-bg-state: rgba(44, 95, 45, 0.1);
+    }
   }
 
   td, th {

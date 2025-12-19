@@ -14,7 +14,10 @@ class Document
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $filename = null;
+    private ?string $filename = null; // nom TECHNIQUE (serveur)
+
+    #[ORM\Column(length: 255)]
+    private ?string $originalName = null; // nom UTILISATEUR null pour commencer 
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $path = null;
@@ -51,6 +54,22 @@ class Document
         $this->filename = $filename;
         return $this;
     }
+
+    public function getDisplayName(): string
+    {
+        return $this->originalName ?? $this->filename;
+    }
+    public function getOriginalName(): ?string
+    {
+        return $this->originalName;
+    }
+
+    public function setOriginalName(?string $originalName): static
+    {
+        $this->originalName = $originalName;
+        return $this;
+    }
+
 
     public function getPath(): ?string
     {

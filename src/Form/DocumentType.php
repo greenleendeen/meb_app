@@ -46,19 +46,19 @@ class DocumentType extends AbstractType
                 ),
                 'choice_label' => fn(DocumentEnum $e) => $e->value,
                 'required' => true,
-            ])
-            ->add('extractedText', TextareaType::class, [
-                'label' => 'Texte extrait du PDF',
-                'required' => false,
-                'attr' => ['rows' => 10],
             ]);
+         //   ->add('extractedText', TextareaType::class, [
+         //       'label' => 'Texte extrait du PDF',
+         //       'required' => false,
+         //       'attr' => ['rows' => 10],
+        //    ]);
 
-        if ($isEdit) {
-            $builder->add('filename', TextType::class, [
-                'label' => 'Nom du fichier',
-                'required' => false,
-            ]);
-        }
+       // if ($isEdit) {
+       //     $builder->add('filename', TextType::class, [
+       //         'label' => 'Nom du fichier',
+        //        'required' => false,
+       //     ]);
+      //  }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

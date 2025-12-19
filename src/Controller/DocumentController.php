@@ -8,6 +8,7 @@ use App\Form\DocumentType;
 use App\Form\InterventionType;
 use App\Repository\DocumentRepository;
 use App\Service\PdfExtractor;
+use App\Service\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,10 +18,20 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/document')]
+
 final class DocumentController extends AbstractController
 {
-    public function __construct(private PdfExtractor $pdfExtractor) {}
+    private DocumentManager $documentManager;
+    private PdfExtractor $pdfExtractor;
+     private EntityManagerInterface $em;
 
+    public function __construct(DocumentManager $documentManager, PdfExtractor $pdfExtractor,  EntityManagerInterface $em)
+    {
+        $this->documentManager = $documentManager;
+        $this->pdfExtractor = $pdfExtractor;
+        $this->em = $em;
+    }
+    
     #[Route(name: 'app_document_index', methods: ['GET'])]
     public function index(DocumentRepository $documentRepository): Response
     {
@@ -28,116 +39,227 @@ final class DocumentController extends AbstractController
             'documents' => $documentRepository->findAll(),
         ]);
     }
-
-   #[Route('/new', name: 'app_document_new', methods: ['GET', 'POST'])]
-public function new(Request $request, EntityManagerInterface $em): Response
+    
+    #[Route('/new', name: 'app_document_new', methods: ['GET', 'POST'])]
+public function new(Request $request): Response
 {
     $document = new Document();
     $documentForm = $this->createForm(DocumentType::class, $document);
-    $intervention = new Intervention();
-    $interventionForm = $this->createForm(InterventionType::class, $intervention);
-
     $documentForm->handleRequest($request);
-    $interventionForm->handleRequest($request);
 
-    // CAS A: création d'un Document seul via form (non AJAX)
     if ($documentForm->isSubmitted() && $documentForm->isValid()) {
-        /** @var UploadedFile $file */
+
+        /** @var UploadedFile|null $file */
         $file = $documentForm->get('file')->getData();
-        if ($file) {
-            $newFilename = uniqid() . '.' . $file->guessExtension();
-            $uploadDir = $this->getParameter('documents_directory');
-            $file->move($uploadDir, $newFilename);
 
-            $document->setFilename($newFilename);
-            $document->setPath('uploads/documents/' . $newFilename);
-
-            $em->persist($document);
-            $em->flush();
-
-            $this->addFlash('success', 'Document créé.');
-            return $this->redirectToRoute('app_document_show', ['id' => $document->getId()]);
-        } else {
-            $this->addFlash('danger', 'Aucun fichier fourni pour le document.');
-        }
-    }
-
-    // CAS B: création d'une Intervention (form) qui réutilise un document uploadé via AJAX
-    if ($interventionForm->isSubmitted() && $interventionForm->isValid()) {
-        $documentId = $request->request->get('document_id'); // envoyé par ton JS après upload AJAX
-        $document = null;
-        if ($documentId) {
-            $document = $em->getRepository(Document::class)->find($documentId);
+        if (!$file) {
+            $this->addFlash('danger', 'Aucun fichier fourni.');
+            return $this->redirectToRoute('app_document_new');
         }
 
-        if ($document) {
-            $intervention->addDocument($document);
-            $document->setIntervention($intervention);
-        }
+        // Champs Intervention (hors formulaire Symfony)
+        $interventionData = [
+            'reference' => $request->request->get('reference'),
+            'clientNom' => $request->request->get('clientNom'),
+            'adresse' => $request->request->get('adresse'),
+            'demande' => $request->request->get('demande'),
+            'detail' => $request->request->get('detail'),
+        ];
 
-        // récupérer champs manuellement si tu veux surcharger via request (optionnel)
-        $clientNom = $request->request->get('clientNom');
-        if ($clientNom) $intervention->setClientNom($clientNom);
-        $adresse = $request->request->get('adresse');
-        if ($adresse) $intervention->setAdresse($adresse);
-        $demande = $request->request->get('demande');
-        if ($demande) $intervention->setDemande($demande);
-        $detail = $request->request->get('detail');
-        if ($detail) $intervention->setDetail($detail);
+        // 1️ Upload du fichier
+        $this->documentManager->uploadFile($document, $file);
 
-        $em->persist($intervention);
-        $em->flush();
+        // 2️ Lien avec l’intervention
+        $this->documentManager->attachToIntervention($document, $interventionData);
 
-        $this->addFlash('success', 'Intervention créée et document lié ✅');
-        return $this->redirectToRoute('app_document_index');
+        // 3️ Flush UNIQUE
+        $this->em->persist($document);
+        $this->em->flush();
+
+        $this->addFlash('success', 'Document créé et lié à l’intervention.');
+
+        return $this->redirectToRoute('app_document_show', [
+            'id' => $document->getId()
+        ]);
     }
 
     return $this->render('document/new.html.twig', [
         'documentForm' => $documentForm->createView(),
-        'interventionForm' => $interventionForm->createView(),
-        'document' => $document,
     ]);
 }
+    //#[Route('/new', name: 'app_document_new', methods: ['GET', 'POST'])]
+   /* public function new(Request $request, EntityManagerInterface $em): Response
+    {
+        $document = new Document();
+        $documentForm = $this->createForm(DocumentType::class, $document);
+
+        $intervention = new Intervention();  //??
+        $interventionForm = $this->createForm(InterventionType::class, $intervention); //??
+
+        $documentForm->handleRequest($request);
+        $interventionForm->handleRequest($request);  //??
+
+        /**
+         * ---------------------------------------
+         * CAS A : création classique d’un document
+         * ---------------------------------------
+         */
+       /* if ($documentForm->isSubmitted() && $documentForm->isValid()) {
+
+            /** @var UploadedFile|null $file */
+      //      $file = $documentForm->get('file')->getData();
+
+          //  if ($file) {
+                // Utilisation du DocumentManager
+         //       $document = $this->documentManager->createDocument($file);
+
+          //      $em->flush();
+
+           //     $this->addFlash('success', 'Document créé.');
+           //     return $this->redirectToRoute('app_document_show', [
+           //         'id' => $document->getId()
+          //      ]);
+          //  }
+        /*          if (!$file) {
+            $this->addFlash('danger', 'Aucun fichier fourni.');
+            return $this->redirectToRoute('app_document_new');
+        }
+
+
+       //     $this->addFlash('danger', 'Aucun fichier fourni.');
+       // }
+         // Récupération de la référence chantier (champ du formulaire ou input séparé)
+        $reference = $request->request->get('reference');
+
+        if (!$reference) {
+            $this->addFlash('danger', 'Référence chantier obligatoire.');
+            return $this->redirectToRoute('app_document_new');
+        }
+
+        // Cherche une intervention existante
+        $intervention = $this->em->getRepository(Intervention::class)
+            ->findOneBy(['reference' => $reference]);
+
+        if (!$intervention) {
+            // Crée nouvelle intervention
+            $intervention = new Intervention();
+            $intervention->setReference($reference);
+            $intervention->setClientNom($request->request->get('clientNom', ''));
+            $intervention->setAdresse($request->request->get('adresse', ''));
+            $this->em->persist($intervention);
+        }
+
+        // Création du document lié à l'intervention
+        $document = $this->documentManager->createDocument($file, $intervention);
+
+        $this->em->flush();
+
+        $this->addFlash('success', 'Document créé et lié à l’intervention.');
+
+        return $this->redirectToRoute('app_document_show', ['id' => $document->getId()]);
+    }
+
+    return $this->render('document/new.html.twig', [
+        'documentForm' => $documentForm->createView(),
+    ]);*/
+
+
+        /**
+         * ----------------------------------------------------
+         * CAS B : Création d'une Intervention + upload AJAX
+         * ----------------------------------------------------
+         */
+       /* if ($interventionForm->isSubmitted() && $interventionForm->isValid()) {
+
+            $documentId = $request->request->get('document_id');
+            $document = $documentId ? $em->getRepository(Document::class)->find($documentId) : null;
+
+            if ($document) {
+                $intervention->addDocument($document);
+                $document->setIntervention($intervention);
+            }
+
+            // Récupération éventuelle (AJAX)
+            if ($clientNom = $request->request->get('clientNom')) {
+                $intervention->setClientNom($clientNom);
+            }
+            if ($adresse = $request->request->get('adresse')) {
+                $intervention->setAdresse($adresse);
+            }
+            if ($demande = $request->request->get('demande')) {
+                $intervention->setDemande($demande);
+            }
+            if ($detail = $request->request->get('detail')) {
+                $intervention->setDetail($detail);
+            }
+
+            $em->persist($intervention);
+            $em->flush();
+
+            $this->addFlash('success', 'Intervention créée et document lié.');
+            return $this->redirectToRoute('app_document_index');
+        }
+
+        return $this->render('document/new.html.twig', [
+            'documentForm' => $documentForm->createView(),
+            'interventionForm' => $interventionForm->createView(),
+            'document' => $document,
+        ]);
+    }*/
+
     // Upload AJAX et retour JSON pour l’iframe
    #[Route('/upload', name: 'app_document_upload', methods: ['POST'])]
-public function uploadJson(Request $request, EntityManagerInterface $em): JsonResponse
+public function uploadJson(Request $request): JsonResponse
 {
     $document = new Document();
     $form = $this->createForm(DocumentType::class, $document);
     $form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        /** @var UploadedFile $file */
-        $file = $form->get('file')->getData();
-        if ($file) {
-            $newFilename = uniqid() . '.' . $file->guessExtension();
-            $uploadDir = $this->getParameter('documents_directory');
+    if (!$form->isSubmitted() || !$form->isValid()) {
+        return new JsonResponse([
+            'status' => 'error',
+            'errors' => (string) $form->getErrors(true, false),
+        ], 400);
+    }
 
-            try {
-                $file->move($uploadDir, $newFilename);
-            } catch (\Exception $e) {
-                return new JsonResponse(['status' => 'error', 'message' => 'Upload failed: '.$e->getMessage()], 500);
-            }
+    /** @var UploadedFile|null $file */
+    $file = $form->get('file')->getData();
+    if (!$file) {
+        return new JsonResponse([
+            'status' => 'error',
+            'message' => 'Aucun fichier reçu.',
+        ], 400);
+    }
 
-            $document->setFilename($newFilename);
-            $document->setPath('uploads/documents/' . $newFilename);
+    // Récupération des champs Intervention
+    $interventionData = [
+        'reference' => $request->request->get('reference'),
+        'clientNom'  => $request->request->get('clientNom'),
+        'adresse'    => $request->request->get('adresse'),
+        'demande'    => $request->request->get('demande'),
+        'detail'     => $request->request->get('detail'),
+    ];
 
-            $em->persist($document);
-            $em->flush();
+    try {
+        // Création du document lié à l'intervention
+       // $document = $this->documentManager->createDocumentWithIntervention($file, $interventionData);
+       $this->documentManager->uploadFile($document, $file);
 
-            return new JsonResponse([
-                'status' => 'success',
-                'id' => $document->getId(),
-                'filename' => $document->getFilename(),
-                'path' => $document->getPath(),
-            ]);
-        }
+        $this->em->flush();
+    }
+    catch (\Exception $e) {
+        return new JsonResponse([
+            'status' => 'error',
+            'message' => 'Erreur upload : ' . $e->getMessage(),
+        ], 500);
     }
 
     return new JsonResponse([
-        'status' => 'error',
-        'errors' => (string) $form->getErrors(true, false),
-    ], 400);
+        'status' => 'success',
+        'id' => $document->getId(),
+        'filename' => $document->getFilename(),
+        'path' => '/uploads/documents/' . $document->getFilename(),
+    ]);
 }
     #[Route('/{id}', name: 'app_document_show', methods: ['GET'])]
     public function show(Document $document): Response

@@ -1,6 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+			<!--bouton pour revenir à l'accueil  -->
+			<li style="display: inline; margin: 0 15px;">
+				<a href="{{ path('app_home') }}">← Retour à l'accueil</a>
+			</li>
 <h1>Modifier le document</h1>
 
     <a class= "btn btn-primary" href="{{ path('app_intervention_new') }}">Créer une nouvelle intervention</a>
