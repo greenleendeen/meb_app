@@ -3,7 +3,7 @@
 {% endblock %}
 
 {% block body %}
-	<div class="container mt-4 p-4 bg-white rounded-xl shadow">
+	<div class="container mt-4 p-4 bg-white ">
 
 		<div class="d-flex justify-content-between align-items-center mb-4 no-print">
 			<h5>Détails de l'intervention</h5>
@@ -11,98 +11,128 @@
 			<li style="display: inline; margin: 0 15px;">
 				<a href="{{ path('app_home') }}">← Retour à l'accueil</a>
 			</li>
-<!-- Bouton pour modifier l'intervention -->
+			<!-- Bouton pour modifier l'intervention -->
 			<li style="display: inline; margin: 0 15px;">
-			   <a href ="{{ path('app_intervention_edit', {'id': intervention.id}) }}" class="btn btn-primary">Modifier</a>
-				
+				<a href="{{ path('app_intervention_edit', {'id': intervention.id}) }}" class="btn btn-primary">Modifier</a>
+
 			</li>
 			<a href="#" onclick="window.print()" class="btn btn-outline-primary">
 				🖨️ Imprimer / PDF
 			</a>
 		</div>
 
-		<!-- Informations principales -->
-		<div class="card p-4 shadow-sm mb-4">
-			<h5>
-				Informations générales</h5>
-			<p>
-				<strong>Référence :</strong>
-				{{ intervention.reference }}</p>
-			<p>
-				<strong>Client :</strong>
-				{{ intervention.clientNom }}</p>
-			<p>
-				<strong>Adresse :</strong>
-				{{ intervention.adresse }}</p>
-			<p>
-				<strong>Demande :</strong>
-				{{ intervention.demande }}</p>
-			<p>
-<div 
-  class="intervention"
-  data-date="{{ intervention.dateIntervention ? intervention.dateIntervention|date('Y-m-d') : '' }}"
-  data-start="{{ intervention.heureDebut ? intervention.heureDebut|date('H:i:s') : '' }}"
-  data-end="{{ intervention.heureFin ? intervention.heureFin|date('H:i:s') : '' }}"
->
-</div>
-		</div>
-		<!-- Compte rendu -->
-		<div class="card p-4 shadow-sm mb-4">
-			<h5>
-				Compte rendu / Détails</h5>
-			<div style="min-height:120mm; border-top:1px solid #ccc; padding:10px; overflow:auto;">
-				{% if intervention.detail %}
-					<p style="white-space: pre-wrap;">{{ intervention.detail }}</p>
-				{% else %}
-					<div class="text-muted fst-italic">
-						<p>Espace réservé pour le compte rendu manuscrit ou saisi sur tablette.</p>
-						<p style="color:#999;">(Ce champ sera imprimé vide sur la version PDF)</p>
-					</div>
-				{% endif %}
+		<div class="card p-4  mb-4">
+			<div
+				class="row g-5">
+				<!-- Colonne gauche -->
+				<div class="col-md-6 ">
+					<h5>Informations générales</h5>
+
+					<p>
+						<strong>Référence :</strong>
+						{{ intervention.reference }}</p>
+					<p>
+						<strong>Client :</strong>
+						{{ intervention.clientNom }}</p>
+					<p>
+						<strong>Adresse :</strong>
+						{{ intervention.adresse }}</p>
+
+				</div>
+
+				<!-- Colonne droite -->
+				<div class="col-md-6">
+					<h5>Planification</h5>
+
+					<p>
+						<strong>Technicien :</strong>
+						{{ intervention.technicien.nom ?? 'Non attribué' }}
+					</p>
+
+					<p>
+						<strong>Date :</strong>
+						{{ intervention.dateIntervention ? intervention.dateIntervention|date('d/m/Y') : 'Non définie' }}
+					</p>
+
+					<p>
+						<strong>Heure :</strong>
+						{% if intervention.heureDebut and intervention.heureFin %}
+							{{ intervention.heureDebut|date('H:i') }}
+							-
+							{{ intervention.heureFin|date('H:i') }}
+						{% else %}
+							Non définie
+						{% endif %}
+					</p>
+				</div>
 			</div>
 		</div>
-	<!-- je cache cette partie pour l'instant
-		 Documents liés 
-		<div class="card p-4 shadow-sm">
-			<h5>📎 Documents liés</h5>
 
-			{% if documents|length > 0 %}
-				<div class="row">
-					{% for document in documents %}
-						<div class="col-md-6 mb-3">
-							<div style="max-height:100mm; overflow:hidden; border:1px solid #ddd; border-radius:6px;">
-								<iframe src="{{ asset('uploads/documents/' ~ document.filename) }}" width="100%" height="200" style="border:none;"></iframe>
+		<!-- DEMANDE EN PLEINE LARGEUR -->
+		<div class="card p-4  mb-4">
+			<h5>Demande</h5>
+			<p class="mb-0">{{ intervention.demande }}</p>
+		</div>
+
+		<div class="intervention" data-date="{{ intervention.dateIntervention ? intervention.dateIntervention|date('Y-m-d') : '' }}" data-start="{{ intervention.heureDebut ? intervention.heureDebut|date('H:i:s') : '' }}" data-end="{{ intervention.heureFin ? intervention.heureFin|date('H:i:s') : '' }}"></div>
+	</div>
+	<!-- Compte rendu -->
+	<div class="card p-4  mb-4">
+		<h5>
+			Compte rendu / Détails</h5>
+		<div style="min-height:120mm; border-top:1px solid #ccc; padding:10px; overflow:auto;">
+			{% if intervention.detail %}
+				<p style="white-space: pre-wrap;">{{ intervention.detail }}</p>
+			{% else %}
+				<div class="text-muted fst-italic">
+					<p>Espace réservé pour le compte rendu manuscrit ou saisi sur tablette.</p>
+					<p style="color:#999;">(Ce champ sera imprimé vide sur la version PDF)</p>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	<!-- je cache cette partie pour l'instant
+			 Documents liés 
+			<div class="card p-4 shadow-sm">
+				<h5>📎 Documents liés</h5>
+	
+				{% if documents|length > 0 %}
+					<div class="row">
+						{% for document in documents %}
+							<div class="col-md-6 mb-3">
+								<div style="max-height:100mm; overflow:hidden; border:1px solid #ddd; border-radius:6px;">
+									<iframe src="{{ asset('uploads/documents/' ~ document.filename) }}" width="100%" height="200" style="border:none;"></iframe>
+								</div>
 							</div>
+						{% endfor %}
+					</div>
+				{% else %}
+					<p class="text-muted fst-italic">Aucun document lié à cette intervention.</p>
+				{% endif %}
+			</div>
+			 Afficher le texte extrait
+			<div class="card p-3 mt-4">
+				<h5>
+					Texte extrait automatiquement</h5>
+	
+				{% if documents|length > 0 %}
+					{% for document in documents %}
+						<div class="mb-3">
+							<h6 class="text-primary">{{ document.filename }}</h6>
+	
+							{% if document.extractedText %}
+								<textarea class="form-control" rows="8" readonly style="font-size: 0.9rem;">
+									{{ document.extractedText }}
+								</textarea>
+							{% else %}
+								<p class="text-muted fst-italic">Aucun texte n’a été extrait de ce fichier.</p>
+							{% endif %}
 						</div>
 					{% endfor %}
-				</div>
-			{% else %}
-				<p class="text-muted fst-italic">Aucun document lié à cette intervention.</p>
-			{% endif %}
-		</div>
-		 Afficher le texte extrait
-		<div class="card p-3 mt-4">
-			<h5>
-				Texte extrait automatiquement</h5>
-
-			{% if documents|length > 0 %}
-				{% for document in documents %}
-					<div class="mb-3">
-						<h6 class="text-primary">{{ document.filename }}</h6>
-
-						{% if document.extractedText %}
-							<textarea class="form-control" rows="8" readonly style="font-size: 0.9rem;">
-								{{ document.extractedText }}
-							</textarea>
-						{% else %}
-							<p class="text-muted fst-italic">Aucun texte n’a été extrait de ce fichier.</p>
-						{% endif %}
-					</div>
-				{% endfor %}
-			{% else %}
-				<p class="text-muted fst-italic">Aucun document disponible pour cette intervention.</p>
-			{% endif %}
-		</div>
-
-	</div>-->
+				{% else %}
+					<p class="text-muted fst-italic">Aucun document disponible pour cette intervention.</p>
+				{% endif %}
+			</div>
+	
+		</div>-->
 {% endblock %}

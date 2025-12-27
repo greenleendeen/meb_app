@@ -33,3 +33,32 @@
   .no-print { display: none !important; }
   
 }
+@media print {
+    .card {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: 1px solid #ddd;
+    }
+
+    /* Supprimer les marges inutiles */
+    .mb-4 {
+        margin-bottom: 0.5rem !important;
+    }
+
+     .row {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .col-md-6 {
+        width: 50% !important;
+    }
+
+    h5 {
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        margin-bottom: 0.25rem;
+    }
+}

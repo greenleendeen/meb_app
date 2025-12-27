@@ -12,7 +12,7 @@
 	</div>
 
 	<table class="table table-hover table-custom ">
-		 <thead class="table-dark">
+		<thead class="table-dark">
 			<tr>
 				<th>ID</th>
 				<th>Client</th>
@@ -32,21 +32,20 @@
 
 					{# Documents liés #}
 					<td>
-						{% if intervention.documents|length > 0 %}
-							<ul class="list-unstyled mb-0">
-								{% for doc in intervention.documents %}
-									<li>
-										📄
-										<a href="{{ asset('uploads/documents/' ~ doc.filename) }}" target="_blank">
-											 {{ doc.displayName }}
-										</a>
-									</li>
-								{% endfor %}
-							</ul>
-						{% else %}
-							<span class="text-muted fst-italic">Aucun document</span>
-						{% endif %}
-					</td>
+    {% if intervention.documents|length > 0 %}
+        <ul class="list-unstyled mb-0">
+            {% for doc in intervention.documents %}
+                <li>
+                    <a href="{{ asset(doc.path) }}" target="_blank">
+                        {{ doc.originalName ?: 'Document joint' }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <span class="text-muted fst-italic">Aucun document</span>
+    {% endif %}
+</td>
 
 					{# Actions #}
 					<td>
