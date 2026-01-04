@@ -25,6 +25,7 @@ export function initCalendar(calendarEl) {
         locale: frLocale,
         selectable: true,
         editable: true,
+        selectMirror: true,
         eventResizableFromStart: true,
         eventDurationEditable: true,
         eventStartEditable: true,
@@ -45,6 +46,19 @@ export function initCalendar(calendarEl) {
         views: {
             listWeek: { buttonText: "Semaine" }
         },
+
+        /**callback select */
+        select: function (info) {
+   // console.log('Plage sélectionnée :', info.startStr, info.endStr);
+    console.log('Sélection :', info.startStr, info.endStr);
+    console.log('Technicien :', info.resource);
+
+    if (typeof window.openCreateInterventionModal === 'function') {
+        window.openCreateInterventionModal(info);
+    } else {
+        console.warn('openCreateInterventionModal non définie');
+    }
+},
 
         /** ------------------------------
          *  FETCH EVENTS FILTRÉS PAR TECH

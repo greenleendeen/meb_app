@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Intervention;
 use App\Entity\Document; // 
+use App\Entity\CompteRendu;
 use App\Form\InterventionType;
+use App\Form\CompteRenduType;
 use App\Repository\InterventionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -210,4 +212,39 @@ public function edit(
 
         return $this->redirectToRoute('app_intervention_show', ['id' => $intervention->getId(),]);
     }
+
+    #[Route('/intervention/{id}/compte-rendu/new', name: 'app_compte_rendu_new')]
+public function newCompteRendu(
+    Intervention $intervention,
+    Request $request,
+    EntityManagerInterface $em
+): Response {
+    $compteRendu = new CompteRendu();
+    $compteRendu->setIntervention($intervention);
+    $compteRendu->setTechnicien($this->getUser());
+
+    $form = $this->createForm(CompteRenduType::class, $compteRendu);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        foreach ($compteRendu->getDocuments() as $doc) {
+            $doc->setIntervention($intervention);
+            $doc->setCompteRendu($compteRendu);
+        }
+
+        $em->persist($compteRendu);
+        $em->flush();
+
+        return $this->redirectToRoute('app_intervention_show', [
+            'id' => $intervention->getId()
+        ]);
+    }
+
+    return $this->render('compte_rendu/new.html.twig', [
+        'intervention' => $intervention,
+        'form' => $form,
+    ]);
+}
+    
 }

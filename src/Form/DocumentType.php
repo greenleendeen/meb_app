@@ -25,9 +25,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
+
 
 class DocumentType extends AbstractType
 {
+    
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isEdit = $options['is_edit'];
@@ -38,15 +41,26 @@ class DocumentType extends AbstractType
                 'mapped' => false,
                 'required' => !$isEdit,
             ])
-            ->add('type', ChoiceType::class, [
-                'label' => 'Type de document',
-                'choices' => array_combine(
-                    array_map(fn($e) => $e->value, DocumentEnum::cases()),
-                    DocumentEnum::cases()
-                ),
-                'choice_label' => fn(DocumentEnum $e) => $e->value,
-                'required' => true,
+
+            ->add('type', EnumType::class, [
+    'class' => DocumentEnum::class,
+     'label' => 'Type de document',
+    'placeholder' => 'Choisir le type du document',
+     'choice_label' => fn(DocumentEnum $e) => $e->getTypeLabel(),
             ]);
+
+           // ->add('type', ChoiceType::class, [
+            //    'label' => 'Type de document',
+               // 'choices' => array_combine(
+              //      array_map(fn($e) => $e->value, DocumentEnum::cases()),
+               //     DocumentEnum::cases()
+               // ),
+       //        fn (DocumentEnum $e) => $e->value,
+ //   'placeholder' => 'Choisir le type du document',
+  //  'required' => true,
+               // 'choice_label' => fn(DocumentEnum $e) => $e->value,
+               // 'required' => true,
+        //    ]);
          //   ->add('extractedText', TextareaType::class, [
          //       'label' => 'Texte extrait du PDF',
          //       'required' => false,
@@ -68,4 +82,6 @@ class DocumentType extends AbstractType
             'is_edit' => false,
         ]);
     }
+
+    
 }

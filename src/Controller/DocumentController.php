@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Document;
 use App\Entity\Intervention;
-use App\Form\DocumentType;
+//use App\Form\DocumentType;
 use App\Form\InterventionType;
 use App\Repository\DocumentRepository;
 use App\Service\PdfExtractor;
@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Enum\DocumentType;
 
 #[Route('/document')]
 

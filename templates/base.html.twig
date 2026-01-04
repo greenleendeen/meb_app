@@ -9,11 +9,39 @@
     {% endblock %}
 </head>
 <body>
+
     {% block body %}{% endblock %}
+
+    {# =======================
+       MODAL UNIVERSELLE
+       ======================= #}
+    <div class="modal fade" id="globalModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="globalModalTitle"></h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Fermer">
+                    </button>
+                </div>
+
+                <div class="modal-body p-0" id="globalModalBody">
+                    <!-- contenu injecté dynamiquement -->
+                </div>
+
+                <div class="modal-footer d-none" id="globalModalFooter"></div>
+
+            </div>
+        </div>
+    </div>
 
     {% block javascripts %}
         {{ vite_entry_script_tags('app') }}
     {% endblock %}
+
 </body>
 </html>
 

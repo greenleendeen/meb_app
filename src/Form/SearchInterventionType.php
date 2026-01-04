@@ -33,13 +33,10 @@ class SearchInterventionType extends AbstractType
             ->add('typeDocument', ChoiceType::class, [
                 'label' => 'Type de document',
                 'required' => false,
-                'choices' => [
-                    'Bon de commande' => DocumentType::BON_COMMANDE,
-                    'Devis' => DocumentType::DEVIS,
-                    'Photo' => DocumentType::PHOTO,
-                    'Compte rendu' => DocumentType::COMPTE_RENDU,
-                    'Facture' => DocumentType::FACTURE,
-                ],
+                'choices' => array_combine(
+    array_map(fn($e) => $e->getTypeLabel(), DocumentType::cases()),
+    DocumentType::cases()
+                ),
                 'placeholder' => 'Tous les types',
             ]);
     }

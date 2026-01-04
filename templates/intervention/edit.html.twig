@@ -64,6 +64,34 @@
 								{{ form_row(docForm.file) }}
 								{{ form_row(docForm.type) }}
 
+								{#proteger les docs existants et respecter l'historique : pour chaque document existant:s’il existe déjà en base → on le protège; 
+								s’il est nouveau → on peut le supprimer#}
+								{% if docForm.vars.data and docForm.vars.data.id %}
+									<p class="text-muted">
+										 Document existant :
+										{{ docForm.vars.data.originalName ?: docForm.vars.data.filename }}
+									</p>
+
+									<a href="{{ asset(docForm.vars.data.path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+										Voir le document
+									</a>
+
+									<p class="text-warning mt-2 fst-italic">
+										Ce document fait partie de l’historique et ne peut pas être supprimé ici.
+									</p>
+
+								{% else %}
+									{{ form_row(docForm.file) }}
+
+									<div class="preview mt-2">
+										<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
+									</div>
+
+									<button type="button" class="btn btn-outline-danger btn-sm remove-document">
+										Supprimer
+									</button>
+								{% endif %}
+
 								<div class="preview mt-2">
 									<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
 								</div>

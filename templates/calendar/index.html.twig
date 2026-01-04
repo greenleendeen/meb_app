@@ -76,6 +76,17 @@
 		</div>
 	</div>
 
+	
+<script>
+    window.TECHNICIENS = [
+        {% for technicien in techniciens %}
+        {
+            id: {{ technicien.id }},
+            nom: "{{ technicien.nom|e('js') }}"
+        },
+        {% endfor %}
+    ];
+</script>
 
 	{{ vite_entry_script_tags('calendar') }}
 {% endblock %}

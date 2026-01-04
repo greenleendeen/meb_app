@@ -91,6 +91,155 @@
 			{% endif %}
 		</div>
 	</div>
+
+<!-- DOCUMENTS LIÉS À L’INTERVENTION -->
+<div class="card p-4 mb-4">
+    <h5>Documents liés à l’intervention</h5>
+
+    {% if intervention.documents|length > 0 %}
+
+        {% set documentsByType = {} %}
+
+        {# Regroupement par type #}
+        {% for doc in intervention.documents %}
+            {% set typeKey = doc.type.value %}
+            {% set documentsByType = documentsByType|merge({
+                (typeKey): (documentsByType[typeKey]|default([]))|merge([doc])
+            }) %}
+        {% endfor %}
+
+        {# Affichage #}
+        {% for type, docs in documentsByType %}
+            <div class="mb-3">
+                <h6 class="text-primary">
+                    {{ docs[0].getTypeLabel() }}
+                </h6>
+
+                <ul class="list-unstyled ms-3 mb-0">
+                    {% for doc in docs %}
+                        <li class="mb-1">
+                            
+                            <a href="{{ asset(doc.path) }}"
+                               target="_blank"
+                               class="open-doc-modal"
+                               data-title="{{ doc.originalName ?: doc.filename }}"
+                               data-url="{{ asset(doc.path) }}">
+                                {{ doc.originalName ?: doc.filename }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+
+    {% else %}
+        <p class="text-muted fst-italic mb-0">
+            Aucun document lié à cette intervention.
+        </p>
+    {% endif %}
+</div>
+<!--Carte : Comptes rendus -->
+<div class="card p-4 mb-4">
+    <h5> Comptes rendus</h5>
+
+    {% if intervention.compteRendus is empty %}
+        <p class="text-muted fst-italic">
+            Aucun compte rendu enregistré pour cette intervention.
+        </p>
+    {% else %}
+        {% for cr in intervention.compteRendus %}
+            <div class="border rounded p-3 mb-3">
+
+                <div class="d-flex justify-content-between mb-2">
+                    <strong>
+                        {{ cr.dateCreation|date('d/m/Y H:i') }}
+                    </strong>
+                    <span class="badge bg-secondary">
+                        {{ cr.technicien.nom }}
+                    </span>
+                </div>
+
+                <div class="mb-3" style="white-space: pre-wrap;">
+                    {{ cr.description }}
+                </div>
+
+                {# Documents liés au compte rendu #}
+                {% if cr.documents|length > 0 %}
+                    <div class="mt-2">
+                        <strong>📎 Documents :</strong>
+                        <ul class="mt-1">
+                            {% for doc in cr.documents %}
+                                <li>
+                                    <a href="{{ asset(doc.path) }}"
+                                       target="_blank">
+                                        {{ doc.originalName }}
+                                    </a>
+                                    <span class="text-muted">
+                                        ({{ doc.getTypeLabel() }})
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!--MODAL AJOUTER UN COMPTE RENDU   -->
+<!-- Modal Ajouter Compte Rendu -->
+<div class="modal fade" id="addCompteRenduModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Ajouter / Modifier un compte rendu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <form id="compteRenduForm" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <!-- Technicien (non modifiable) -->
+                    <div class="mb-3">
+                        <label class="form-label">Technicien</label>
+                        <input type="text" class="form-control" value="{{ intervention.technicien.nom }}" disabled>
+                    </div>
+
+                    <!-- Description / compte rendu -->
+                    <div class="mb-3">
+                        <label class="form-label">Compte rendu</label>
+                        <textarea name="description" class="form-control" rows="6"
+                                  placeholder="Décrire l’intervention, les constats, les actions réalisées…"></textarea>
+                    </div>
+
+                    <!-- Documents associés -->
+                    <div class="mb-3">
+                        <label class="form-label">Documents (PDF / Images)</label>
+                        <input type="file" name="documents[]" class="form-control" multiple>
+                        <small class="text-muted">Vous pouvez ajouter plusieurs fichiers.</small>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+
+                <!-- Champs cachés -->
+                <input type="hidden" name="intervention_id" value="{{ intervention.id }}">
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton pour ouvrir la modal -->
+<button class="btn btn-outline-primary mb-3" 
+        data-bs-toggle="modal" 
+        data-bs-target="#addCompteRenduModal">
+    + Ajouter un compte rendu
+</button>
+
 	<!-- je cache cette partie pour l'instant
 			 Documents liés 
 			<div class="card p-4 shadow-sm">

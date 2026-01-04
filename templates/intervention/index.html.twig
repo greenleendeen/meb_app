@@ -9,6 +9,15 @@
 	<div class="mb-3">
 		<a class="btn btn-primary" href="{{ path('app_intervention_new') }}">Créer une nouvelle intervention</a>
 		<a class="btn btn-secondary" href="{{ path('app_intervention_search') }}">Recherche</a>
+		{#}test modal {#}
+		<button class="btn btn-success"
+        onclick="openGlobalModal({
+            title: 'Test modal universelle',
+            body: '<div class=\'p-4\'>🎉 La modal fonctionne !</div>'
+        })">
+    Tester la modal
+</button>
+
 	</div>
 
 	<table class="table table-hover table-custom ">
@@ -36,9 +45,12 @@
         <ul class="list-unstyled mb-0">
             {% for doc in intervention.documents %}
                 <li>
-                    <a href="{{ asset(doc.path) }}" target="_blank">
-                        {{ doc.originalName ?: 'Document joint' }}
-                    </a>
+<a href="#"
+   class="open-pdf"
+   data-url="{{ asset(doc.path) }}"
+   data-title="{{ doc.originalName ?: 'Document joint' }}">
+    {{ doc.originalName ?: 'Document joint' }}
+</a>
                 </li>
             {% endfor %}
         </ul>

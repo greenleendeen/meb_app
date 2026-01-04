@@ -138,15 +138,16 @@ class Document
     }
 
     // --- LABELS pour Twig ---
-    public function getTypeLabel(): string
-    {
-        return match ($this->type) {
-            DocumentEnum::BON_COMMANDE => 'Bon de commande',
-            DocumentEnum::DEVIS => 'Devis',
-            DocumentEnum::PHOTO => 'Photo',
-            DocumentEnum::COMPTE_RENDU => 'Compte rendu',
-            DocumentEnum::FACTURE => 'Facture',
-            default => 'Inconnu',
-        };
-    }
+   // public function getTypeLabel(): string
+  //  {
+  //      return match ($this->type) {
+   //         DocumentEnum::BON_COMMANDE => 'Bon de commande',
+  //          DocumentEnum::DEVIS => 'Devis',
+  //          DocumentEnum::PHOTO => 'Photo',
+     //       DocumentEnum::COMPTE_RENDU => 'Compte rendu',
+   //         DocumentEnum::FACTURE => 'Facture',
+           // DocumentEnum::AUTRE => 'autre',
+   //         default => 'Inconnu',
+   //     };
+  //  }
 }

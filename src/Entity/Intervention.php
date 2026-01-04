@@ -53,7 +53,9 @@ class Intervention
     //#[ORM\JoinColumn(nullable: true)]
     //private ?User $createdBy = null;
 
-    #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'])]
+   // #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'])]
+   #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+#[ORM\OrderBy(['dateCreation' => 'DESC'])]
     private Collection $compteRendus; // pluriel
 
     public function __construct()

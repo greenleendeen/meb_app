@@ -26,12 +26,16 @@ class CompteRendu
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $dateCreation = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'compteRendu')]
+    //  #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'compteRendu')]
+    // private ?User $technicien = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $technicien = null;
 
-#[ORM\ManyToOne(targetEntity: Intervention::class, inversedBy: 'compteRendus')]
-#[ORM\JoinColumn(nullable: false)]
-private ?Intervention $intervention = null;
+    #[ORM\ManyToOne(targetEntity: Intervention::class, inversedBy: 'compteRendus')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Intervention $intervention = null;
 
     #[ORM\OneToMany(mappedBy: 'compteRendu', targetEntity: Document::class, cascade: ['persist', 'remove'])]
     private Collection $documents;
@@ -63,6 +67,12 @@ private ?Intervention $intervention = null;
     public function getDateCreation(): ?\DateTimeImmutable
     {
         return $this->dateCreation;
+    }
+    
+    public function setDateCreation(\DateTimeImmutable $dateCreation): static
+    {
+        $this->dateCreation = $dateCreation;
+        return $this;
     }
 
     public function getTechnicien(): ?User
@@ -103,14 +113,13 @@ private ?Intervention $intervention = null;
         }
         return $this;
     }
-public function removeDocument(Document $document): static
-{
-    if ($this->documents->removeElement($document)) {
-        if ($document->getCompteRendu() === $this) {
-            $document->setCompteRendu(null);
+    public function removeDocument(Document $document): static
+    {
+        if ($this->documents->removeElement($document)) {
+            if ($document->getCompteRendu() === $this) {
+                $document->setCompteRendu(null);
+            }
         }
+        return $this;
     }
-    return $this;
-}
-
 }
