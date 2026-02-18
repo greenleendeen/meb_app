@@ -112,7 +112,7 @@
         {% for type, docs in documentsByType %}
             <div class="mb-3">
                 <h6 class="text-primary">
-                    {{ docs[0].getTypeLabel() }}
+                     {{ docs[0].type.label }}
                 </h6>
 
                 <ul class="list-unstyled ms-3 mb-0">
@@ -175,7 +175,7 @@
                                         {{ doc.originalName }}
                                     </a>
                                     <span class="text-muted">
-                                        ({{ doc.getTypeLabel() }})
+                                        ({{ doc.type.label }})
                                     </span>
                                 </li>
                             {% endfor %}
@@ -203,7 +203,7 @@
                     <!-- Technicien (non modifiable) -->
                     <div class="mb-3">
                         <label class="form-label">Technicien</label>
-                        <input type="text" class="form-control" value="{{ intervention.technicien.nom }}" disabled>
+                        <input type="text" class="form-control" value="{{ intervention.technicien.nom ?? 'Non attribué' }}" disabled>
                     </div>
 
                     <!-- Description / compte rendu -->

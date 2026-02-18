@@ -57,20 +57,23 @@ class InterventionType extends AbstractType
             ->add('demande', TextareaType::class, ['required' => false])
             ->add('detail', TextareaType::class, ['required' => false])
 
-->add('documents', CollectionType::class, [
-    'entry_type' => DocumentType::class,
-    'entry_options' => ['is_edit' => $isEdit],
-    'allow_add' => true,
-    'allow_delete' => true,
-    'by_reference' => false,
-])
-            // j'ajoute des nouveaux documents 
-            ->add('newDocuments', FileType::class, [
-                'mapped' => false,
-                'multiple' => true,
-                'required' => false,
-                'label' => 'Ajouter de nouveaux documents'
+            ->add('documents', CollectionType::class, [
+                'entry_type' => DocumentType::class,
+              //  'entry_options' => ['is_edit' => $isEdit],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
             ])
+
+            
+            // j'ajoute des nouveaux documents 
+          //    ->add('newDocuments', FileType::class, [
+           //       'mapped' => false,
+           //        'multiple' => true,
+           //        'required' => false,
+           //        'label' => 'Ajouter de nouveaux documents'
+             //  ])
+             
             //j'ajoute les champs dans le formulaire pour les testes et pour la suite
             ->add('dateIntervention', DateType::class, [
                 'widget' => 'single_text',
@@ -93,6 +96,8 @@ class InterventionType extends AbstractType
                 'label' => 'Technicien',
                 'required' => false,
             ]);
+
+
 
         // ->add('title', TextType::class, ['label' => 'Titre'])
         //  ->add('date', DateTimeType::class, [

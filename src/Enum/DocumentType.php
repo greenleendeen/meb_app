@@ -9,7 +9,7 @@ enum DocumentType: string {
     case PHOTO = 'photo';
     case COMPTE_RENDU = 'compte_rendu';
 
-    public function getTypeLabel(): string
+     public function label(): string
     {
         return match($this) {
             self::DEVIS => 'Devis',

@@ -12,17 +12,22 @@
 		<div
 			class="row g-4">
 			<!-- Colonne gauche : infos intervention -->
-			   <div class="col-lg-4 col-md-5">
-            <div class="card shadow-sm p-4">
-                <h4 class="mb-3">Informations principales</h4>
+			<div class="col-lg-4 col-md-5">
+				<div class="card shadow-sm p-4">
+					<h4 class="mb-3">Informations principales</h4>
 
 					{{ form_row(form.clientNom) }}
 					{{ form_row(form.reference) }}
+					{# Afficher le message d'erreur de doublon #}
+					{% for error in form.reference.vars.errors %}
+						<div class="alert alert-danger mt-2">
+							{{ error.message }}
+						</div>
+					{% endfor %}
 					{{ form_row(form.adresse) }}
 					{{ form_row(form.demande) }}
 					{{ form_row(form.detail) }}
 
-					{# nouveaux champs #}
 					{{ form_row(form.dateIntervention) }}
 					{{ form_row(form.heureDebut) }}
 					{{ form_row(form.heureFin) }}
@@ -31,30 +36,29 @@
 			</div>
 
 			<!-- Colonne droite : documents et PDF -->
-		  <div class="col-lg-8 col-md-7">
+			<div class="col-lg-8 col-md-7">
 				<div class="card shadow-sm p-3 mb-3">
 					<h4 class="mb-3">Documents associés</h4>
+
 					<!-- IFrame pour le PDF -->
-					   <div class="card shadow-sm p-3 mb-3">
-						<h4 class="mb-3">Aperçu PDF</h4>
-						<iframe id="pdfViewer" style="width:100%; height:700px; border:1px solid #ccc;" src="" class="d-none"></iframe>
+					<div class="card shadow-sm p-3 mb-3">
+						<h5>Aperçu PDF</h5>
+						<iframe id="pdfViewer" style="width:100%; height:500px; border:1px solid #ccc;" class="d-none"></iframe>
 						<p id="pdfPlaceholder" class="text-muted fst-italic text-center">
 							Le PDF s'affichera ici après sélection.
 						</p>
 					</div>
-					<div id="documents-wrapper" data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}">
-						{% for docForm in form.documents %}
-							<div class="document-item border rounded p-3 mb-3">
-								{{ form_row(docForm.file) }}
-								{{ form_row(docForm.type) }}
 
+					<!-- Collection Symfony -->
+					<div id="documents-wrapper" data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}">
+						{% for doc in form.documents %}
+							<div class="document-item border rounded p-3 mb-3">
+								{{ form_row(doc.file) }}
+								{{ form_row(doc.type) }}
 								<div class="preview mt-2">
 									<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
 								</div>
-
-								<button type="button" class="btn btn-outline-danger btn-sm remove-document">
-									Supprimer
-								</button>
+								<button type="button" class="btn btn-outline-danger btn-sm remove-document mt-2">Supprimer</button>
 							</div>
 						{% endfor %}
 					</div>
@@ -62,69 +66,104 @@
 					<button type="button" id="add-document" class="btn btn-outline-secondary mt-2">
 						+ Ajouter un document
 					</button>
+
 				</div>
+			</div>
 
-
+			<div class="mt-4 text-end">
+				<button type="submit" class="btn btn-primary">Enregistrer l’intervention</button>
 			</div>
 		</div>
 
-		<div class="mt-4 text-end">
-			<button type="submit" class="btn btn-primary">Enregistrer l’intervention</button>
-		</div>
-
 		{{ form_end(form) }}
+
+        <div class="mt-3">
+    {% if form.reference.vars.errors|length > 0 %}
+        <p class="text-warning">
+            Une intervention avec cette référence existe déjà. <br>
+            Vous pouvez corriger la référence ci-dessus ou <a href="{{ path('app_intervention_index') }}">abandonner</a> l’enregistrement.
+        </p>
+    {% endif %}
+</div>
+
 	</div>
 
 	<script>
-		const collectionHolder = document.getElementById('documents-wrapper');
+		document.addEventListener('DOMContentLoaded', () => {
+const collectionHolder = document.getElementById('documents-wrapper');
 const addButton = document.getElementById('add-document');
+
+if (! collectionHolder) 
+return;
+
+
 collectionHolder.dataset.index = collectionHolder.querySelectorAll('.document-item').length;
 
 addButton.addEventListener('click', () => {
 const prototype = collectionHolder.dataset.prototype;
+if (! prototype) 
+return console.error('Prototype introuvable');
+
+
 const index = collectionHolder.dataset.index;
 const newForm = prototype.replace(/__name__/g, index);
 collectionHolder.dataset.index ++;
 
 const item = document.createElement('div');
 item.classList.add('document-item', 'border', 'rounded', 'p-3', 'mb-3');
-item.innerHTML = newForm + `
-        <div class="preview mt-2">
-            <p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
-        </div>
-        <button type="button" class="btn btn-outline-danger btn-sm remove-document">Supprimer</button>
-    `;
+item.innerHTML = newForm;
+
+// Preview
+const preview = document.createElement('div');
+preview.classList.add('preview', 'mt-2');
+preview.innerHTML = '<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>';
+item.appendChild(preview);
+
+// Bouton supprimer
+const removeBtn = document.createElement('button');
+removeBtn.type = 'button';
+removeBtn.classList.add('btn', 'btn-outline-danger', 'btn-sm', 'remove-document', 'mt-2');
+removeBtn.textContent = 'Supprimer';
+item.appendChild(removeBtn);
+
 collectionHolder.appendChild(item);
 });
 
 // Supprimer un document
-document.addEventListener('click', (e) => {
-if (e.target && e.target.classList.contains('remove-document')) {
-e.target.closest('.document-item').remove();
+document.addEventListener('click', e => {
+if (e.target.classList.contains('remove-document')) {
+const item = e.target.closest('.document-item');
+if (item) 
+item.remove();
+
 }
 });
 
-// Afficher PDF sélectionné dans l'iframe
-document.addEventListener('change', (e) => {
-if (e.target.matches('.document-item input[type="file"]')) {
+// Preview PDF / image
+document.addEventListener('change', e => {
+if (!e.target.matches('.document-item input[type="file"]')) 
+return;
+
+
 const input = e.target;
 const file = input.files[0];
 const previewDiv = input.closest('.document-item').querySelector('.preview');
 
-if (file) {
-const reader = new FileReader();
-reader.onload = function (ev) {
-if (file.type === 'application/pdf') { // Affiche dans l'iframe
-const pdfViewer = document.getElementById('pdfViewer');
-const placeholder = document.getElementById('pdfPlaceholder');
-pdfViewer.src = ev.target.result;
-pdfViewer.classList.remove('d-none');
-placeholder.classList.add('d-none');
+if (! file) {
+previewDiv.innerHTML = '<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>';
+return;
+}
 
-// Aperçu dans le document-item
+const reader = new FileReader();
+reader.onload = ev => {
+if (file.type === 'application/pdf') {
 previewDiv.innerHTML = `<iframe src="${
 ev.target.result
 }" width="100%" height="400px"></iframe>`;
+const pdfViewer = document.getElementById('pdfViewer');
+pdfViewer.src = ev.target.result;
+pdfViewer.classList.remove('d-none');
+document.getElementById('pdfPlaceholder').classList.add('d-none');
 } else if (file.type.startsWith('image/')) {
 previewDiv.innerHTML = `<img src="${
 ev.target.result
@@ -132,28 +171,9 @@ ev.target.result
 }
 };
 reader.readAsDataURL(file);
-} else {
-previewDiv.innerHTML = '<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>';
-}
-}
 });
 
-// Retenir le champ actif pour insertion du texte
-let activeField = null;
-document.querySelectorAll('input, textarea').forEach(field => {
-field.addEventListener('focus', () => activeField = field);
-});
-
-// Copier texte sélectionné dans l'iframe vers le champ actif
-const pdfViewer = document.getElementById('pdfViewer');
-pdfViewer.addEventListener('load', () => {
-const iframeDoc = pdfViewer.contentDocument || pdfViewer.contentWindow.document;
-iframeDoc.addEventListener('mouseup', () => {
-const selection = iframeDoc.getSelection().toString().trim();
-if (selection && activeField) {
-activeField.value = selection;
-}
-});
 });
 	</script>
+
 {% endblock %}

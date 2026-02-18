@@ -91,7 +91,7 @@
 										Supprimer
 									</button>
 								{% endif %}
-
+									
 								<div class="preview mt-2">
 									<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
 								</div>
@@ -117,6 +117,28 @@
 
 		{{ form_end(form) }}
 	</div>
+	<h4>Documents existants</h4>
+<div id="existing-documents">
+    {% for doc in intervention.documents %}
+        <div class="document-item border rounded p-3 mb-3" data-id="{{ doc.id }}">
+            <p><strong>Type :</strong> {{ doc.type.label() }}</p>
+            <p><strong>Fichier :</strong> 
+                {% if doc.filename %}
+                    <a href="{{ asset(doc.path) }}" target="_blank">{{ doc.filename }}</a>
+                {% else %}
+                    Aucun fichier
+                {% endif %}
+            </p>
+
+            <div class="form-group mt-2">
+                <label>Remplacer le fichier</label>
+                <input type="file" name="documents_replace[{{ doc.id }}]" class="form-control">
+            </div>
+
+            <button type="button" class="btn btn-outline-danger btn-sm remove-existing-document">Supprimer</button>
+        </div>
+    {% endfor %}
+</div>
 
 	<script>
 		// === JS pour gérer ajout / suppression de documents ===
@@ -167,10 +189,23 @@ previewDiv.innerHTML = '<p class="text-muted fst-italic">Aperçu du document ici
 }
 });
 
+//document.addEventListener('click', (e) => {
+//if (e.target && e.target.classList.contains('remove-document')) {
+//e.target.closest('.document-item').remove();
+//}
+//});
+
 document.addEventListener('click', (e) => {
-if (e.target && e.target.classList.contains('remove-document')) {
-e.target.closest('.document-item').remove();
-}
+    if (e.target && e.target.classList.contains('remove-existing-document')) {
+        const item = e.target.closest('.document-item');
+        item.remove();
+        // si tu veux, tu peux ajouter un champ hidden pour signaler la suppression côté serveur
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'documents_delete[]';
+        input.value = item.dataset.id;
+        document.querySelector('form').appendChild(input);
+    }
 });
 	</script>
 {% endblock %}

@@ -34,7 +34,7 @@ class SearchInterventionType extends AbstractType
                 'label' => 'Type de document',
                 'required' => false,
                 'choices' => array_combine(
-    array_map(fn($e) => $e->getTypeLabel(), DocumentType::cases()),
+    array_map(fn($e) => $e->label(), DocumentType::cases()),
     DocumentType::cases()
                 ),
                 'placeholder' => 'Tous les types',

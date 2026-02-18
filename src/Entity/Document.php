@@ -16,8 +16,11 @@ class Document
     #[ORM\Column(length: 255)]
     private ?string $filename = null; // nom TECHNIQUE (serveur)
 
-    #[ORM\Column(length: 255)]
-    private ?string $originalName = null; // nom UTILISATEUR null pour commencer 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $originalName = null; // nom DOCUMENT null pour commencer 
+
+#[ORM\Column(nullable: true)]
+private ?\DateTimeImmutable $uploadedAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $path = null;
@@ -34,6 +37,18 @@ class Document
 
     #[ORM\ManyToOne(inversedBy: 'documents')]
     private ?\App\Entity\CompteRendu $compteRendu = null;
+
+    //nouveau, pour la date de suppression du document.. 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeImmutable $deletedAt = null;
+
+public function softDelete(): void {
+    $this->deletedAt = new \DateTimeImmutable();
+}
+
+public function isDeleted(): bool {
+    return $this->deletedAt !== null;
+}
 
     private ?UploadedFile $file = null;
 
@@ -57,7 +72,9 @@ class Document
 
     public function getDisplayName(): string
     {
-        return $this->originalName ?? $this->filename;
+      //  return $this->originalName ?? $this->filename;
+      return $this->originalName
+        ?? pathinfo($this->filename, PATHINFO_FILENAME);
     }
     public function getOriginalName(): ?string
     {
@@ -126,6 +143,7 @@ class Document
         return $this;
     }
 
+    //mapper le champ file:
     public function getFile(): ?UploadedFile
     {
         return $this->file;
@@ -137,6 +155,19 @@ class Document
         return $this;
     }
 
+    //pour le upload document 
+    public function getUploadedAt(): ?\DateTimeImmutable
+{
+    return $this->uploadedAt;
+}
+
+public function setUploadedAt(?\DateTimeImmutable $uploadedAt): self
+{
+    $this->uploadedAt = $uploadedAt;
+
+    return $this;
+}
+    
     // --- LABELS pour Twig ---
    // public function getTypeLabel(): string
   //  {

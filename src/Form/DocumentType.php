@@ -30,7 +30,7 @@ use Symfony\Component\Form\Extension\Core\Type\EnumType;
 
 class DocumentType extends AbstractType
 {
-    
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isEdit = $options['is_edit'];
@@ -38,41 +38,41 @@ class DocumentType extends AbstractType
         $builder
             ->add('file', FileType::class, [
                 'label' => 'Fichier PDF ou image',
-                'mapped' => false,
-                'required' => !$isEdit,
+                'required' => false, // IMPORTANT
+                'mapped' => true //false,
             ])
 
             ->add('type', EnumType::class, [
-    'class' => DocumentEnum::class,
-     'label' => 'Type de document',
-    'placeholder' => 'Choisir le type du document',
-     'choice_label' => fn(DocumentEnum $e) => $e->getTypeLabel(),
+                'class' => DocumentEnum::class,
+                'label' => 'Type de document',
+                'placeholder' => 'Choisir le type du document',
+                'choice_label' => fn(DocumentEnum $e) => $e->label(),
             ]);
 
-           // ->add('type', ChoiceType::class, [
-            //    'label' => 'Type de document',
-               // 'choices' => array_combine(
-              //      array_map(fn($e) => $e->value, DocumentEnum::cases()),
-               //     DocumentEnum::cases()
-               // ),
-       //        fn (DocumentEnum $e) => $e->value,
- //   'placeholder' => 'Choisir le type du document',
-  //  'required' => true,
-               // 'choice_label' => fn(DocumentEnum $e) => $e->value,
-               // 'required' => true,
+        // ->add('type', ChoiceType::class, [
+        //    'label' => 'Type de document',
+        // 'choices' => array_combine(
+        //      array_map(fn($e) => $e->value, DocumentEnum::cases()),
+        //     DocumentEnum::cases()
+        // ),
+        //        fn (DocumentEnum $e) => $e->value,
+        //   'placeholder' => 'Choisir le type du document',
+        //  'required' => true,
+        // 'choice_label' => fn(DocumentEnum $e) => $e->value,
+        // 'required' => true,
         //    ]);
-         //   ->add('extractedText', TextareaType::class, [
-         //       'label' => 'Texte extrait du PDF',
-         //       'required' => false,
-         //       'attr' => ['rows' => 10],
+        //   ->add('extractedText', TextareaType::class, [
+        //       'label' => 'Texte extrait du PDF',
+        //       'required' => false,
+        //       'attr' => ['rows' => 10],
         //    ]);
 
-       // if ($isEdit) {
-       //     $builder->add('filename', TextType::class, [
-       //         'label' => 'Nom du fichier',
+        // if ($isEdit) {
+        //     $builder->add('filename', TextType::class, [
+        //         'label' => 'Nom du fichier',
         //        'required' => false,
-       //     ]);
-      //  }
+        //     ]);
+        //  }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -82,6 +82,4 @@ class DocumentType extends AbstractType
             'is_edit' => false,
         ]);
     }
-
-    
 }

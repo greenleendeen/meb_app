@@ -6,10 +6,15 @@ use App\Repository\InterventionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 use App\Entity\Document;
 
 #[ORM\Entity(repositoryClass: InterventionRepository::class)]
+#[UniqueEntity(
+    fields: ['reference'],
+    message: 'Une intervention avec cette référence existe déjà.'
+)]
 class Intervention
 {
     #[ORM\Id]
@@ -20,7 +25,7 @@ class Intervention
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $clientNom = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+     #[ORM\Column(type: 'string', length: 255, unique: true)]
     private ?string $reference = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -162,7 +167,9 @@ class Intervention
      */
     public function getDocuments(): Collection
     {
-        return $this->documents;
+        return $this->documents->filter(
+        fn (Document $doc) => !$doc->isDeleted()
+    );
     }
 
     public function setDocuments(Collection $documents): static
@@ -180,16 +187,32 @@ class Intervention
         return $this;
     }
 
-    public function addDocument(Document $document): static
-    {
-        if (!$this->documents->contains($document)) {
-            $this->documents->add($document);
+public function addDocument(Document $document): static
+{
+    if (!$this->documents->contains($document)) {
+        $this->documents->add($document);
+        $document->setIntervention($this);
+    }
+    return $this;
+}
+
+public function removeDocument(Document $document): static
+{
+    if ($this->documents->removeElement($document)) {
+
+        // cohérence Doctrine (owning side)
+        if ($document->getIntervention() === $this) {
             $document->setIntervention($this);
         }
-        return $this;
+
+        // logique métier
+        $document->softDelete();
     }
 
-    public function removeDocument(Document $document): static
+    return $this;
+}
+
+   /* public function removeDocument(Document $document): static
     {
         if ($this->documents->removeElement($document)) {
             if ($document->getIntervention() === $this) {
@@ -197,7 +220,7 @@ class Intervention
             }
         }
         return $this;
-    }
+    }*/
 
     // --- Getters / Setters pour datetime, heuredebut, heurefin et technicien---
 
@@ -244,4 +267,6 @@ class Intervention
         $this->technicien = $technicien;
         return $this;
     }
+
+    
 }

@@ -11,10 +11,10 @@
 		{# ==== RECHERCHE RAPIDE ==== #}
 		<div class="card shadow-sm mb-4">
 			<div class="card-body">
-<form method="get" action="{{ path('app_intervention_search') }}">
-    {{ form_row(form.reference) }}
-    <button class="btn btn-primary">Rechercher</button>
-</form>
+				<form method="get" action="{{ path('app_intervention_search') }}">
+					{{ form_row(form.reference) }}
+					<button class="btn btn-primary">Rechercher</button>
+				</form>
 			</div>
 
 			<div class="card-footer text-end">
@@ -32,7 +32,6 @@
 					{{ form_start(form, { method:'GET' }) }}
 
 					<div class="row g-3">
-
 
 
 						<div class="col-md-4">
@@ -108,7 +107,13 @@
 
 									<td>
 										{% for d in i.documents %}
-											<span class="badge bg-secondary">{{ d.getTypeLabel() }}</span>
+											<span class="badge bg-secondary">
+												{{ d.type ? d.type.label() : 'Type non défini' }}
+											</span>
+										{% endfor %}
+										
+										{% for d in i.documents %}
+											<span class="badge bg-secondary">{{ d.type.label() }}</span>
 										{% endfor %}
 									</td>
 
