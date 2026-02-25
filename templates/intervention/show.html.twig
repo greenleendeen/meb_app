@@ -76,11 +76,11 @@
 
 		<div class="intervention" data-date="{{ intervention.dateIntervention ? intervention.dateIntervention|date('Y-m-d') : '' }}" data-start="{{ intervention.heureDebut ? intervention.heureDebut|date('H:i:s') : '' }}" data-end="{{ intervention.heureFin ? intervention.heureFin|date('H:i:s') : '' }}"></div>
 	</div>
-	<!-- Compte rendu -->
-	<div class="card p-4  mb-4">
+	<!-- Compte rendu border-top:1px solid #ccc;-->
+	<div class="container mt-4 p-4 bg-white">
 		<h5>
 			Compte rendu / Détails</h5>
-		<div style="min-height:120mm; border-top:1px solid #ccc; padding:10px; overflow:auto;">
+		<div style="min-height:180mm; padding:10px; overflow:auto;">
 			{% if intervention.detail %}
 				<p style="white-space: pre-wrap;">{{ intervention.detail }}</p>
 			{% else %}

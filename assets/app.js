@@ -15,7 +15,7 @@ import { Application } from "stimulus";
 
 const app = Application.start();
 
-// Charge tous les controllers depuis ./controllers
+// je charge tous les controllers depuis ./controllers
 const controllers = import.meta.glob('./controllers/**/*.js', { eager: true });
 
 Object.entries(controllers).forEach(([path, controllerModule]) => {
@@ -23,13 +23,13 @@ Object.entries(controllers).forEach(([path, controllerModule]) => {
     app.register(name, controllerModule.default);
 });
 
-// Exemple : si tu as un controller Flatpickr à enregistrer manuellement
+// Exemple : un controller Flatpickr à enregistrer manuellement
 import FlatpickrController from './controllers/flatpickr_controller.js';
 app.register("flatpickr", FlatpickrController);
 // Calendar init
 import { initCalendar } from "../assets/js/calendar/calendar";
 
-// Si tu veux que le calendrier s'initialise automatiquement pour un target existant
+//  le calendrier s'initialise automatiquement pour un target existant
 document.addEventListener("DOMContentLoaded", () => {
     const calendarEl = document.getElementById("calendar");
     if (calendarEl) {

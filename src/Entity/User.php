@@ -40,10 +40,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 7, nullable: true)]
     private ?string $couleur = null;
 
+    /**
+     * @var Collection<int, InterventionHistory>
+     */
+    #[ORM\OneToMany(targetEntity: InterventionHistory::class, mappedBy: 'modifiedBy')]
+    private Collection $interventionHistories;
+
     public function __construct()
     {
         $this->compteRendu = new ArrayCollection();
         $this->roles = new ArrayCollection();
+        $this->interventionHistories = new ArrayCollection();
     }
 
     // --- Getters / Setters principaux ---
@@ -162,6 +169,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCouleur(?string $couleur): static
     {
         $this->couleur = $couleur;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, InterventionHistory>
+     */
+    public function getInterventionHistories(): Collection
+    {
+        return $this->interventionHistories;
+    }
+
+    public function addInterventionHistory(InterventionHistory $interventionHistory): static
+    {
+        if (!$this->interventionHistories->contains($interventionHistory)) {
+            $this->interventionHistories->add($interventionHistory);
+            $interventionHistory->setModifiedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInterventionHistory(InterventionHistory $interventionHistory): static
+    {
+        if ($this->interventionHistories->removeElement($interventionHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($interventionHistory->getModifiedBy() === $this) {
+                $interventionHistory->setModifiedBy(null);
+            }
+        }
 
         return $this;
     }

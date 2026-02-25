@@ -1,64 +1,76 @@
 @media print {
+
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
   body {
-    width: 210mm;
-    height: 297mm;
-    margin: 0;
-    padding: 10mm;
-    font-size: 12px;
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #000;
+    background: white !important;
   }
 
-  .container {
-    width: 100%;
-    margin: 0;
-    padding: 0;
+  h5 {
+    font-size: 16px;
+    font-weight: 700;
+    border-bottom: 1px solid #707070;
+    padding-bottom: 4px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
+  p {
+    margin-bottom: 6px;
+  }
+
+  strong {
+    display: inline-block;
+    min-width: 110px;
+  }
+
+  /* Supprime ombres bootstrap */
   .card {
-    page-break-inside: avoid; // éviter les coupures
-    margin-bottom: 10px;
+    border: none;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 25px;
   }
 
-  iframe, img {
-    max-width: 100%;
-    max-height: 80mm; // limite pour documents
+  /* Remplace le row bootstrap par un vrai layout propre */
+  .row {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 40px;
   }
 
-  textarea {
-    height: 120mm; // zone compte rendu
+  .col-md-6 {
+    max-width:45% !important;
   }
 
+  /* Zone compte rendu */
+  .intervention-detail {
+    border: 1px solid #707070;
+    padding: 15px;
+    min-height: 250mm;
+  }
+
+  /* Documents : plus petits et sobres */
+  a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+
+  /* Cacher tout ce qui est inutile */
+  .no-print,
+  .btn,
+  nav,
+  footer,
+  .modal,
   button {
-    display: none; // cacher les boutons à l’impression
+    display: none !important;
   }
-  .no-print { display: none !important; }
-  
-}
-@media print {
-    .card {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        border: 1px solid #ddd;
-    }
-
-    /* Supprimer les marges inutiles */
-    .mb-4 {
-        margin-bottom: 0.5rem !important;
-    }
-
-     .row {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-    }
-
-    .col-md-6 {
-        width: 50% !important;
-    }
-
-    h5 {
-        margin-bottom: 0.5rem;
-    }
-
-    p {
-        margin-bottom: 0.25rem;
-    }
 }

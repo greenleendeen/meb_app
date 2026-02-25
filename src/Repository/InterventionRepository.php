@@ -96,8 +96,14 @@ if (!empty($criteria['technicien'])) {
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
-
-
+// pour trier par date de création
+public function findAllOrderedByNewest(): array
+{
+    return $this->createQueryBuilder('i')
+        ->orderBy('i.createdAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
 
     //    /**
     //     * @return Intervention[] Returns an array of Intervention objects

@@ -42,6 +42,10 @@
         {{ vite_entry_script_tags('app') }}
     {% endblock %}
 
+<script>
+    window.CSRF_TOKEN = '{{ csrf_token("calendar_update") }}';
+</script>
+
 </body>
 </html>
 

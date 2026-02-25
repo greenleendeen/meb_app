@@ -49,16 +49,16 @@ export function initCalendar(calendarEl) {
 
         /**callback select */
         select: function (info) {
-   // console.log('Plage sélectionnée :', info.startStr, info.endStr);
-    console.log('Sélection :', info.startStr, info.endStr);
-    console.log('Technicien :', info.resource);
+            // console.log('Plage sélectionnée :', info.startStr, info.endStr);
+            console.log('Sélection :', info.startStr, info.endStr);
+            console.log('Technicien :', info.resource);
 
-    if (typeof window.openCreateInterventionModal === 'function') {
-        window.openCreateInterventionModal(info);
-    } else {
-        console.warn('openCreateInterventionModal non définie');
-    }
-},
+            if (typeof window.openCreateInterventionModal === 'function') {
+                window.openCreateInterventionModal(info);
+            } else {
+                console.warn('openCreateInterventionModal non définie');
+            }
+        },
 
         /** ------------------------------
          *  FETCH EVENTS FILTRÉS PAR TECH
@@ -104,8 +104,8 @@ export function initCalendar(calendarEl) {
         /** ------------------------------
          *  DRAG / RESIZE = UPDATE AJAX
          * ------------------------------ */
-        eventDrop: info => updateEvent(info.event),
-        eventResize: info => updateEvent(info.event),
+        eventDrop: info => updateEvent(info),
+        eventResize: info => updateEvent(info),
 
         /** ------------------------------
          *  RENDU PERSONNALISÉ
@@ -170,7 +170,7 @@ export function initCalendar(calendarEl) {
         const modal = document.getElementById("editEventModal");
         modal.querySelector("#editEventId").value = event.id;
         modal.querySelector("#editStart").value = event.start.toISOString().slice(0, 16);
-        modal.querySelector("#editEnd").value = event.end.toISOString().slice(0, 16);
+        modal.querySelector("#editEnd").value = event.end ? event.end.toISOString().slice(0, 16) : event.start.toISOString().slice(0, 16);
         modal.querySelector("#editTechnicien").value = event.extendedProps.technicienId || "";
 
         new bootstrap.Modal(modal).show();
@@ -200,27 +200,62 @@ export function initCalendar(calendarEl) {
     /** --------------------------
      *  UPDATE AJAX DRAG & DROP
      * -------------------------- */
-    function updateEvent(event) {
-        fetch("/calendar/update", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                id: event.id,
-                start: event.start.toISOString(),
-                end: event.end?.toISOString() || event.start.toISOString()
-            })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    showToast("Intervention mise à jour !");
-                } else {
-                    showToast(data.error || "Erreur inconnue", "#e67e22");
-                }
-            })
-            .catch(() => showToast("Erreur de mise à jour", "#e74c3c"));
-    }
+    function updateEvent(info) {
 
+        const event = info.event;
+        const oldStart = info.oldEvent?.start;
+        const oldEnd = info.oldEvent?.end;
+
+        const oldStartStr = oldStart ? oldStart.toLocaleString() : "";
+        const oldEndStr = oldEnd ? oldEnd.toLocaleString() : "";
+
+        // Modal de confirmation
+        window.openGlobalModal({
+            title: '⚠ Modifier l’intervention ?',
+            body: `
+            <p>Ancienne date : <strong>${oldStartStr}</strong> - <strong>${oldEndStr}</strong></p>
+            <p>Nouvelle date : <strong>${event.start.toLocaleString()}</strong> - <strong>${event.end ? event.end.toLocaleString() : ""}</strong></p>
+            <p>Confirmez pour enregistrer et créer un historique.</p>
+        `,
+            footer: `
+           <button type="button" class="btn btn-secondary" id="cancelEdit" data-bs-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-primary" id="confirmEdit">Confirmer</button>
+        `
+        });
+
+        // Annulation → revert
+        document.getElementById('cancelEdit').addEventListener('click', () => {
+            info.revert();
+        });
+
+        // Confirmation → AJAX
+        document.getElementById('confirmEdit').onclick = async () => {
+            try {
+                const res = await fetch(`/intervention/${event.id}/update-from-calendar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': window.CSRF_TOKEN
+                    },
+                    body: JSON.stringify({
+                        start: event.start.toISOString(),
+                        end: event.end?.toISOString() || event.start.toISOString()
+                    })
+                });
+
+                if (!res.ok) throw new Error('Erreur serveur');
+
+                bootstrap.Modal.getInstance(document.getElementById('globalModal')).hide();
+                showToast('Intervention mise à jour et historique créé !');
+            } catch (err) {
+                // Revert FullCalendar
+                info.revert();
+                bootstrap.Modal.getInstance(document.getElementById('globalModal')).hide();
+                showToast('Erreur lors de la mise à jour', '#e74c3c');
+            }
+        };
+    }
     /** --------------------------
      *  TOAST VISUEL
      * -------------------------- */

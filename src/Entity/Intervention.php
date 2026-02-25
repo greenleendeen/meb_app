@@ -25,7 +25,7 @@ class Intervention
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $clientNom = null;
 
-     #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     private ?string $reference = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -53,20 +53,25 @@ class Intervention
     #[ORM\JoinColumn(nullable: true)]
     private ?User $technicien = null;
 
+    #[ORM\Column(type: 'datetime_immutable')]
+    private ?\DateTimeImmutable $createdAt = null;
+
     //l'utilisateur créateur de l'intervention 
     //#[ORM\ManyToOne(targetEntity: User::class)]
     //#[ORM\JoinColumn(nullable: true)]
     //private ?User $createdBy = null;
 
-   // #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'])]
-   #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-#[ORM\OrderBy(['dateCreation' => 'DESC'])]
+    // #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: CompteRendu::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['dateCreation' => 'DESC'])]
     private Collection $compteRendus; // pluriel
 
     public function __construct()
     {
         $this->compteRendus = new ArrayCollection();
         $this->documents = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->interventionHistories = new ArrayCollection();
     }
 
     /**
@@ -100,7 +105,14 @@ class Intervention
      * @var Collection<int, Document>
      */
     #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'intervention', cascade: ['persist', 'remove'])]
-    private Collection $documents; // <- nom au pluriel
+    private Collection $documents;
+
+    /**
+     * @var Collection<int, InterventionHistory>
+     */
+    #[ORM\OneToMany(mappedBy: 'intervention', targetEntity: InterventionHistory::class, cascade: ['persist'], orphanRemoval: false)]
+    #[ORM\OrderBy(['modifiedAt' => 'DESC'])]
+    private Collection $interventionHistories;
 
     public function getId(): ?int
     {
@@ -161,6 +173,17 @@ class Intervention
         $this->detail = $detail;
         return $this;
     }
+    // pour le tris suivant la date de création 
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
 
     /**
      * @return Collection<int, Document>
@@ -168,8 +191,8 @@ class Intervention
     public function getDocuments(): Collection
     {
         return $this->documents->filter(
-        fn (Document $doc) => !$doc->isDeleted()
-    );
+            fn(Document $doc) => !$doc->isDeleted()
+        );
     }
 
     public function setDocuments(Collection $documents): static
@@ -187,32 +210,32 @@ class Intervention
         return $this;
     }
 
-public function addDocument(Document $document): static
-{
-    if (!$this->documents->contains($document)) {
-        $this->documents->add($document);
-        $document->setIntervention($this);
-    }
-    return $this;
-}
-
-public function removeDocument(Document $document): static
-{
-    if ($this->documents->removeElement($document)) {
-
-        // cohérence Doctrine (owning side)
-        if ($document->getIntervention() === $this) {
+    public function addDocument(Document $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
             $document->setIntervention($this);
         }
-
-        // logique métier
-        $document->softDelete();
+        return $this;
     }
 
-    return $this;
-}
+    public function removeDocument(Document $document): static
+    {
+        if ($this->documents->removeElement($document)) {
 
-   /* public function removeDocument(Document $document): static
+            // cohérence Doctrine (owning side)
+            if ($document->getIntervention() === $this) {
+                $document->setIntervention($this);
+            }
+
+            // logique métier
+            $document->softDelete();
+        }
+
+        return $this;
+    }
+
+    /* public function removeDocument(Document $document): static
     {
         if ($this->documents->removeElement($document)) {
             if ($document->getIntervention() === $this) {
@@ -268,5 +291,33 @@ public function removeDocument(Document $document): static
         return $this;
     }
 
-    
+    /**
+     * @return Collection<int, InterventionHistory>
+     */
+    public function getInterventionHistories(): Collection
+    {
+        return $this->interventionHistories;
+    }
+
+    public function addInterventionHistory(InterventionHistory $interventionHistory): static
+    {
+        if (!$this->interventionHistories->contains($interventionHistory)) {
+            $this->interventionHistories->add($interventionHistory);
+            $interventionHistory->setIntervention($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInterventionHistory(InterventionHistory $interventionHistory): static
+    {
+        if ($this->interventionHistories->removeElement($interventionHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($interventionHistory->getIntervention() === $this) {
+                $interventionHistory->setIntervention(null);
+            }
+        }
+
+        return $this;
+    }
 }

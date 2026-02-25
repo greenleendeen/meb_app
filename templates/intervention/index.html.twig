@@ -10,20 +10,19 @@
 		<a class="btn btn-primary" href="{{ path('app_intervention_new') }}">Créer une nouvelle intervention</a>
 		<a class="btn btn-secondary" href="{{ path('app_intervention_search') }}">Recherche</a>
 		{#}test modal {#}
-		<button class="btn btn-success"
-        onclick="openGlobalModal({
-            title: 'Test modal universelle',
-            body: '<div class=\'p-4\'>🎉 La modal fonctionne !</div>'
-        })">
-    Tester la modal
-</button>
+		<button class="btn btn-success" onclick="openGlobalModal({
+				            title: 'Test modal universelle',
+				            body: '<div class=\'p-4\'>🎉 La modal fonctionne !</div>'
+				        })">
+			Tester la modal
+		</button>
 
 	</div>
 
 	<table class="table table-hover table-custom ">
 		<thead class="table-dark">
 			<tr>
-				<th>ID</th>
+				<th>Créée le</th>
 				<th>Client</th>
 				<th>Référence</th>
 				<th>Adresse</th>
@@ -34,30 +33,31 @@
 		<tbody>
 			{% for intervention in interventions %}
 				<tr>
-					<td>{{ intervention.id }}</td>
+					<td>
+						<small class="text-muted">
+							{{ intervention.createdAt|date('d/m/Y H:i') }}
+						</small>
+					</td>
 					<td>{{ intervention.clientNom }}</td>
 					<td>{{ intervention.reference }}</td>
 					<td>{{ intervention.adresse }}</td>
 
 					{# Documents liés #}
 					<td>
-    {% if intervention.documents|length > 0 %}
-        <ul class="list-unstyled mb-0">
-            {% for doc in intervention.documents %}
-                <li>
-<a href="#"
-   class="open-pdf"
-   data-url="{{ asset(doc.path) }}"
-   data-title="{{ doc.originalName ?: 'Document joint' }}">
-    {{ doc.originalName ?: 'Document joint' }}
-</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <span class="text-muted fst-italic">Aucun document</span>
-    {% endif %}
-</td>
+						{% if intervention.documents|length > 0 %}
+							<ul class="list-unstyled mb-0">
+								{% for doc in intervention.documents %}
+									<li>
+										<a href="#" class="open-pdf" data-url="{{ asset(doc.path) }}" data-title="{{ doc.originalName ?: 'Document joint' }}">
+											{{ doc.originalName ?: 'Document joint' }}
+										</a>
+									</li>
+								{% endfor %}
+							</ul>
+						{% else %}
+							<span class="text-muted fst-italic">Aucun document</span>
+						{% endif %}
+					</td>
 
 					{# Actions #}
 					<td>
