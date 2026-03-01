@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card p-4 shadow-sm" style="width: 100%; max-width: 400px;">
+        <h2 class="text-center mb-4">Connexion Super Admin</h2>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        {% if app.user %}
+            <div class="alert alert-info text-center">
+                Connecté en tant que {{ app.user.userIdentifier }}, 
+                <a href="{{ path('app_logout') }}">Se déconnecter</a>
+            </div>
+        {% endif %}
+
+        <form method="post">
+            <div class="mb-3">
+                <label for="inputIdentifiant" class="form-label">Identifiant</label>
+                <input type="text" value="{{ last_username }}" name="identifiant" id="inputIdentifiant" class="form-control" autocomplete="username" required autofocus>
+            </div>
+
+            <div class="mb-3">
+                <label for="inputPassword" class="form-label">Mot de passe</label>
+                <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" name="_remember_me" class="form-check-input" id="rememberMe">
+                <label class="form-check-label" for="rememberMe">Se souvenir de moi</label>
+            </div>
+
+            <button class="btn btn-primary w-100" type="submit">Se connecter</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
