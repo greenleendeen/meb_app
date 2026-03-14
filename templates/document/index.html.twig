@@ -1,12 +1,14 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}liste des documents{% endblock %}
+
+
+{% block body %}
 			<!--bouton pour revenir à l'accueil  -->
 			<li style="display: inline; margin: 0 15px;">
 				<a href="{{ path('app_home') }}">← Retour à l'accueil</a>
 			</li>
 
-{% block body %}
     <h1>Document index</h1>
   <a class= "btn btn-primary" href="{{ path('app_document_new') }}">Créer un nouveau document</a>
     <table class="table">

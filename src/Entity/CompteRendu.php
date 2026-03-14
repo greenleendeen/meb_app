@@ -29,9 +29,11 @@ class CompteRendu
     //  #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'compteRendu')]
     // private ?User $technicien = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $technicien = null;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'compteRendu')]
+#[ORM\JoinColumn(nullable: false)]
+private ?User $technicien = null;
+
+
 
     #[ORM\ManyToOne(targetEntity: Intervention::class, inversedBy: 'compteRendus')]
     #[ORM\JoinColumn(nullable: false)]

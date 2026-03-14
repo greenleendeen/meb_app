@@ -1,14 +1,16 @@
 security:
-
+    #  Hashage des mots de passe
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
+    #  Fournisseur d'utilisateurs
     providers:
         users_in_db:
             entity:
                 class: App\Entity\User
                 property: identifiant
 
+    #  Firewalls
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -16,16 +18,28 @@ security:
 
         main:
             provider: users_in_db
+
+            login_throttling: ~
+
+            # login
             form_login:
                 login_path: app_login
                 check_path: app_login
                 default_target_path: /intervention
                 username_parameter: identifiant
                 password_parameter: password
+            # logout    
             logout:
                 path: app_logout
                 target: /login
 
+            # remember me (optionnel)
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800  # 1 semaine
+                path: /
+
+    #  Contrôle d'accès aux pages
     access_control:
         # Autorise la page login
         - { path: ^/login$, roles: PUBLIC_ACCESS }
