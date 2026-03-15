@@ -1,10 +1,9 @@
 // assets/styles/_dashboard.scss
 
-$bg: #fbfbfa;
-$accent: #e6e3c2;
+$bg: var(--color-light);
 $card-bg: #ffffff;
-$muted: #6c757d;
-$primary: #3b82f6;
+$muted: var(--color-dark);
+$primary: var(--color-primary);
 
 // Layout
 .app-shell {
@@ -18,21 +17,73 @@ $primary: #3b82f6;
 
 /* sidebar */
 .sidebar {
-  width: 72px;
-  background: linear-gradient(180deg, #fff, #fafafa);
-  border-radius: 16px;
+  width: 170px;
+  min-height: 100vh;
+
+  background: linear-gradient(
+    180deg,
+    var(--color-primary),
+    var(--color-secondary)
+  );
+color: white;
+  border-radius: 0;
   box-shadow: 0 6px 18px rgba(18,18,18,.06);
   padding-top: 1rem;
+}
+.sidebar a {
+  color: white;
+   text-decoration: none;
+}
+
+.sidebar a:hover {
+  color: #ffffffcc;
+}
+
+.sidebar i {
+  font-size: 20px;
+}
+
+.sidebar .nav-link.active {
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar .nav-link::before,
+.sidebar .nav-link::after {
+  content: none !important;
+  display: none !important;
+}
+
+.sidebar .nav-link {
+  width: 100%;
+  text-align: center;
+  border-radius: 10px;
+  padding: 10px 0;
+  transition: background .15s ease;
+}
+
+.sidebar .nav-link:hover {
+  background: rgba(255,255,255,0.15);
+}
 
   .logo { 
     height: 48px; width: 48px;
     display:flex; align-items:center; justify-content:center;
   }
 
+.sidebar .logo img {
+  width: 150px;
+  height: auto;
+}
   .nav-icon {
     width:44px; height:44px;
   }
-}
+
 
 /* left list column */
 .col-left {
@@ -121,9 +172,48 @@ $primary: #3b82f6;
 }
 
 /* responsive */
-@media (max-width: 1200px) {
+
+/* =========================
+   MOBILE NAVIGATION
+   ========================= */
+
+@media (max-width: 768px) {
   .dashboard-wrap { flex-direction: column; }
   .sidebar { width: 56px; }
   .col-left, .col-right { width: 100%; order: 2; }
   .col-center { order: 1; min-width: auto; width: 100%; }
+  .dashboard-wrap {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+
+      flex-direction: row !important;
+    justify-content: space-around;
+    align-items: center;
+
+    border-radius: 0;
+    padding: 8px;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .sidebar .logo {
+    display: none; /* cache le logo pour gagner de la place */
+  }
+
+  .sidebar .nav-link {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .sidebar .nav-link i {
+    display: block;
+    font-size: 20px;
+  }
+
 }

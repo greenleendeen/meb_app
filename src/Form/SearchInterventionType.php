@@ -30,12 +30,16 @@ class SearchInterventionType extends AbstractType
                 'choice_value' => 'id',
                 'placeholder' => 'Tous les techniciens',
             ])
+            ->add('q', TextType::class, [
+                'required' => false,
+                'label' => 'Recherche globale'
+            ])
             ->add('typeDocument', ChoiceType::class, [
                 'label' => 'Type de document',
                 'required' => false,
                 'choices' => array_combine(
-    array_map(fn($e) => $e->label(), DocumentType::cases()),
-    DocumentType::cases()
+                    array_map(fn($e) => $e->label(), DocumentType::cases()),
+                    DocumentType::cases()
                 ),
                 'placeholder' => 'Tous les types',
             ]);

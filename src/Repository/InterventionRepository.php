@@ -16,7 +16,7 @@ class InterventionRepository extends ServiceEntityRepository
         parent::__construct($registry, Intervention::class);
     }
 
-/**
+    /**
      * Recherche dynamique d'interventions selon $criteria
      *
      * $criteria possible keys:
@@ -42,7 +42,17 @@ class InterventionRepository extends ServiceEntityRepository
             $qb->andWhere('i.reference = :ref')
                 ->setParameter('ref', $criteria['reference']);
         }
-
+        //  Recherche globale
+        if (!empty($criteria['q'])) {
+            $qb->andWhere('(
+        i.reference LIKE :q
+        OR i.adresse LIKE :q
+        OR i.clientNom LIKE :q
+        OR i.demande LIKE :q
+        OR i.detail LIKE :q
+    )')
+                ->setParameter('q', '%' . $criteria['q'] . '%');
+        }
         // Adresse "contient"
         if (!empty($criteria['adresse'])) {
             $qb->andWhere('i.adresse LIKE :addr')
@@ -50,10 +60,10 @@ class InterventionRepository extends ServiceEntityRepository
         }
 
         // Technicien
-if (!empty($criteria['technicien'])) {
-    $qb->andWhere('i.technicien = :tech')
-       ->setParameter('tech', $criteria['technicien']); // Doctrine convertira l'id en entité
-}
+        if (!empty($criteria['technicien'])) {
+            $qb->andWhere('i.technicien = :tech')
+                ->setParameter('tech', $criteria['technicien']); // Doctrine convertira l'id en entité
+        }
 
         // Type de document
         if (!empty($criteria['typeDocument'])) {
@@ -83,11 +93,21 @@ if (!empty($criteria['technicien'])) {
             $qb->andWhere('i.adresse LIKE :addr')
                 ->setParameter('addr', '%' . $criteria['adresse'] . '%');
         }
+        if (!empty($criteria['q'])) {
+            $qb->andWhere('(
+        i.reference LIKE :q
+        OR i.adresse LIKE :q
+        OR i.clientNom LIKE :q
+        OR i.demande LIKE :q
+        OR i.detail LIKE :q
+    )')
+                ->setParameter('q', '%' . $criteria['q'] . '%');
+        }
 
-if (!empty($criteria['technicien'])) {
-    $qb->andWhere('i.technicien = :tech')
-        ->setParameter('tech', $criteria['technicien']);
-}
+        if (!empty($criteria['technicien'])) {
+            $qb->andWhere('i.technicien = :tech')
+                ->setParameter('tech', $criteria['technicien']);
+        }
 
         if (!empty($criteria['typeDocument'])) {
             $qb->andWhere('d.type = :typeDoc')
@@ -96,14 +116,14 @@ if (!empty($criteria['technicien'])) {
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
-// pour trier par date de création
-public function findAllOrderedByNewest(): array
-{
-    return $this->createQueryBuilder('i')
-        ->orderBy('i.createdAt', 'DESC')
-        ->getQuery()
-        ->getResult();
-}
+    // pour trier par date de création
+    public function findAllOrderedByNewest(): array
+    {
+        return $this->createQueryBuilder('i')
+            ->orderBy('i.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 
     //    /**
     //     * @return Intervention[] Returns an array of Intervention objects

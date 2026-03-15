@@ -28,15 +28,15 @@
 				<div class="col-md-6 ">
 					<h5>Informations générales</h5>
 
-					<p>
+					<h3>
 						<strong>Référence :</strong>
-						{{ intervention.reference }}</p>
-					<p>
+						{{ intervention.reference }}</h3>
+					<h3>
 						<strong>Client :</strong>
-						{{ intervention.clientNom }}</p>
-					<p>
+						{{ intervention.clientNom }}</h3>
+					<h3>
 						<strong>Adresse :</strong>
-						{{ intervention.adresse }}</p>
+						{{ intervention.adresse }}</h3>
 
 				</div>
 
@@ -44,17 +44,17 @@
 				<div class="col-md-6">
 					<h5>Planification</h5>
 
-					<p>
+					<h3>
 						<strong>Technicien :</strong>
 						{{ intervention.technicien.nom ?? 'Non attribué' }}
-					</p>
+					</h3>
 
-					<p>
+					<h3>
 						<strong>Date :</strong>
 						{{ intervention.dateIntervention ? intervention.dateIntervention|date('d/m/Y') : 'Non définie' }}
-					</p>
+					</h3>
 
-					<p>
+					<h3>
 						<strong>Heure :</strong>
 						{% if intervention.heureDebut and intervention.heureFin %}
 							{{ intervention.heureDebut|date('H:i') }}
@@ -63,7 +63,7 @@
 						{% else %}
 							Non définie
 						{% endif %}
-					</p>
+					</h3>
 				</div>
 			</div>
 		</div>
@@ -80,7 +80,7 @@
 	<div class="container mt-4 p-4 bg-white">
 		<h5>
 			Compte rendu / Détails</h5>
-		<div style="min-height:180mm; padding:10px; overflow:auto;">
+		<div style="min-height:100mm; padding:10px; overflow:auto;">
 			{% if intervention.detail %}
 				<p style="white-space: pre-wrap;">{{ intervention.detail }}</p>
 			{% else %}
@@ -93,7 +93,7 @@
 	</div>
 
 <!-- DOCUMENTS LIÉS À L’INTERVENTION -->
-<div class="card p-4 mb-4">
+<div class="card p-4 mb-4 no-print">
     <h5>Documents liés à l’intervention</h5>
 
     {% if intervention.documents|length > 0 %}
@@ -139,7 +139,7 @@
     {% endif %}
 </div>
 <!--Carte : Comptes rendus -->
-<div class="card p-4 mb-4">
+<div class="card p-4 mb-4 no-print">
     <h5> Comptes rendus</h5>
 
     {% if intervention.compteRendus is empty %}

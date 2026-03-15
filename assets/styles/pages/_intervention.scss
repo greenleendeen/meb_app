@@ -5,6 +5,21 @@
     margin: 10mm;
   }
 
+  .sidebar {
+    display: none !important;
+  }
+
+  main {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dashboard-wrap {
+    display: block;
+  }
+
+
   body {
     font-family: "Helvetica", "Arial", sans-serif;
     font-size: 15px;
@@ -48,7 +63,7 @@
   }
 
   .col-md-6 {
-    max-width:45% !important;
+    max-width: 45% !important;
   }
 
   /* Zone compte rendu */

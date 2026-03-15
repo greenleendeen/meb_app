@@ -1,0 +1,40 @@
+<nav class="sidebar p-3 d-flex flex-column align-items-center">
+
+    {# LOGO / accueil #}
+    <a href="{{ path('app_home') }}" class="logo mb-4">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo" >
+    </a>
+
+    {# MENU PRINCIPAL #}
+    <a href="{{ path('app_home') }}" class="nav-link {{ app.request.attributes.get('_route') == 'app_home' ? 'active' }}">
+        <i class="bi bi-house fs-4"></i><br>Accueil
+    </a>
+
+    <a href="{{ path('app_intervention_index') }}" class="nav-link {{ app.request.attributes.get('_route') starts with 'app_intervention' ? 'active' }}">
+        <i class="bi bi-list-task fs-4"></i><br>Interventions
+    </a>
+
+    <a href="{{ path('app_intervention_new') }}" class="nav-link mt-3 w-100 text-center">
+        <i class="bi bi-plus-circle"></i> Nouvelle intervention
+    </a>
+
+    <a href="{{ path('app_intervention_search') }}" class="nav-link {{ app.request.attributes.get('_route') == 'app_intervention_search' ? 'active' }}">
+        <i class="bi bi-search fs-4"></i><br>Recherche
+    </a>
+
+    <a href="{{ path('app_calendar') }}" class="nav-link data-bs-toggle="tooltip" title="Calendrier" {{ app.request.attributes.get('_route') == 'app_calendar' ? 'active' }}">
+        <i class="bi bi-calendar3 fs-4"></i><br>Calendrier
+    </a>
+
+
+    <a href="{{ path('app_document_index') }}" class="nav-link {{ app.request.attributes.get('_route') starts with 'app_document' ? 'active' }}">
+        <i class="bi bi-file-earmark-text fs-4"></i><br>Documents
+    </a>
+
+    {# Paramètres alignés en bas #}
+    <a href="#" class="nav-link mt-auto">
+        <i class="bi bi-gear fs-4"></i><br>Paramètres
+    </a>
+
+</nav>
+

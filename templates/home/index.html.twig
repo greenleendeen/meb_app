@@ -4,28 +4,138 @@
 {% endblock %}
 
 {% block body %}
-	<div class="container" style="margin-top: 50px; text-align: center;">
-		<h1>Bienvenue sur l'application de gestion d'interventions</h1>
 
-		<nav style="margin-top: 30px;">
-			<ul style="list-style: none; padding: 0;">
-				<li style="display: inline; margin: 0 15px;">
-					<a href="{{ path('app_home') }}">Accueil</a>
-				</li>
-				<li style="display: inline; margin: 0 15px;">
-					<a href="{{ path('app_intervention_index') }}">Interventions</a>
-				</li>
-				<li style="display: inline; margin: 0 15px;">
-					<a href="{{ path('app_intervention_new') }}">Créer une intervention</a>
-				</li>
+	<div
+		class="dashboard-container d-flex flex-column vh-100">
 
-				<li style="display: inline; margin: 0 15px;">
-					<a href="{{ path('app_document_index') }}">Documents</a>
-				</li>
-				<li style="display: inline; margin: 0 15px;">
-					<a href="{{ path('app_calendar') }}">Voir calendrier</a>
-				</li>
-			</ul>
-		</nav>
+		<!-- HEADER -->
+		<header class="app-header border-bottom p-3">
+			<div
+				class="d-flex justify-content-between align-items-center">
+
+				<!-- TITRE -->
+				<div>
+					<h4 class="fw-bold m-0">Gestion des interventions</h4>
+				</div>
+
+				<!-- NAVIGATION -->
+				<nav class="d-flex align-items-center gap-3">
+
+					<a class="btn btn-outline-primary btn-sm" href="{{ path('app_home') }}">
+						Accueil
+					</a>
+
+					<a class="btn btn-outline-primary btn-sm" href="{{ path('app_intervention_index') }}">
+						Interventions
+					</a>
+
+					<a class="btn btn-outline-success btn-sm" href="{{ path('app_intervention_new') }}">
+						Nouvelle intervention
+					</a>
+
+					<a class="btn btn-outline-secondary btn-sm" href="{{ path('app_document_index') }}">
+						Documents
+					</a>
+
+					<a class="btn btn-outline-dark btn-sm" href="{{ path('app_calendar') }}">
+						Calendrier
+					</a>
+
+					<!-- LOGO -->
+					<div class="ms-3">
+						<img src="{{ asset('images/logo_vert.png') }}" alt="Logo"  width="150" ">
+					</div>
+
+				</nav>
+
+			</div>
+		</header>
+
+
+		<!-- MAIN -->
+		<div
+			class="dashboard-main flex-grow-1 d-flex">
+
+			<!-- SIDEBAR 
+			<nav class="sidebar p-3 d-flex flex-column align-items-center">
+
+				<a href="{{ path('app_calendar') }}" class="nav-link text-white mb-4 text-center">
+					{{ app.request.attributes.get('_route') starts with 'app_calendar' ? 'active' }}
+
+					<i class="bi bi-calendar3 fs-4"></i><br>
+					Calendrier
+				</a>
+
+				<a href="{{ path('app_intervention_index') }}" class="nav-link text-white mb-4 text-center">
+					{{ app.request.attributes.get('_route') starts with 'app_intervention_index' ? 'active' }}
+					<i class="bi bi-list-task fs-4"></i><br>
+					Interventions
+				</a>
+
+				<a href="{{ path('app_intervention_search') }}" class="nav-link text-white mb-4 text-center
+						   {{ app.request.attributes.get('_route') == 'app_intervention_search' ? 'active' }}">
+
+					<i class="bi bi-search fs-4"></i><br>
+					Recherche
+				</a>
+
+				<a href="#" class="nav-link text-white mt-auto text-center">
+					<i class="bi bi-gear fs-4"></i><br>
+					Paramètres
+				</a>
+
+			</nav> -->
+
+
+			<!-- ZONE PRINCIPALE -->
+			<main class="flex-grow-1 p-4 bg-light">
+
+				<div
+					class="row g-4">
+
+					<!-- CALENDRIER -->
+					<div class="col-lg-8">
+						<div class="card shadow-sm">
+							<div class="card-header fw-bold">
+								Calendrier des interventions
+							</div>
+
+							<div class="card-body">
+
+								<div id="calendar" style="height:400px;background:#f8f9fa;border-radius:8px;"></div>
+
+							</div>
+						</div>
+					</div>
+
+
+					<!-- CARTE -->
+					<div class="col-lg-4">
+						<div class="card shadow-sm">
+							<div class="card-header fw-bold">
+								Carte des interventions
+							</div>
+
+							<div class="card-body">
+
+								<div id="map" style="height:400px;background:#eaeaea;border-radius:8px;"></div>
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</main>
+
+		</div>
+
+
+		<!-- FOOTER -->
+		<footer class="bg-white border-top p-3 text-center text-muted">
+			Application de gestion d'interventions
+		</footer>
+
 	</div>
+
 {% endblock %}

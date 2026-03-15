@@ -6,11 +6,19 @@
 
     {% block stylesheets %}
         {{ vite_entry_link_tags('app') }}
+         <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     {% endblock %}
 </head>
 <body>
+ <div class="dashboard-wrap">
+      {{ include('components/sidebar.html.twig') }}
 
-    {% block body %}{% endblock %}
+      <main class="flex-grow-1 p-3">
+          {% block body %}{% endblock %}
+      </main>
+  </div>
+   
 
     {# =======================
        MODAL UNIVERSELLE

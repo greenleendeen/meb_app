@@ -38,23 +38,23 @@
 			<!-- Colonne droite : documents et PDF -->
 			<div class="col-lg-8 col-md-7">
 				<div class="card shadow-sm p-3 mb-3">
-					<h4 class="mb-3">Documents associés</h4>
+					<h4 class="mb-3">Documents associés </h4>
 
 					<!-- IFrame pour le PDF -->
-					<div class="card shadow-sm p-3 mb-3">
-						<h5>Aperçu PDF</h5>
+					
+					<!--	<h5>Aperçu PDF</h5>
 						<iframe id="pdfViewer" style="width:100%; height:500px; border:1px solid #ccc;" class="d-none"></iframe>
 						<p id="pdfPlaceholder" class="text-muted fst-italic text-center">
 							Le PDF s'affichera ici après sélection.
 						</p>
-					</div>
+			-->
 
 					<!-- Collection Symfony -->
 					<div id="documents-wrapper" data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}">
 						{% for doc in form.documents %}
 							<div class="document-item border rounded p-3 mb-3">
-								{{ form_row(doc.file) }}
 								{{ form_row(doc.type) }}
+								{{ form_row(doc.file) }}
 								<div class="preview mt-2">
 									<p class="text-muted fst-italic">Aperçu du document ici après sélection.</p>
 								</div>
@@ -160,9 +160,9 @@ if (file.type === 'application/pdf') {
 previewDiv.innerHTML = `<iframe src="${
 ev.target.result
 }" width="100%" height="400px"></iframe>`;
-const pdfViewer = document.getElementById('pdfViewer');
+/*const pdfViewer = document.getElementById('pdfViewer');
 pdfViewer.src = ev.target.result;
-pdfViewer.classList.remove('d-none');
+pdfViewer.classList.remove('d-none');*/
 document.getElementById('pdfPlaceholder').classList.add('d-none');
 } else if (file.type.startsWith('image/')) {
 previewDiv.innerHTML = `<img src="${
