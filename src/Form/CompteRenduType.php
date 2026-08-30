@@ -12,7 +12,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
-use App\Enum\DocumentType;
+// use App\Enum\DocumentType;
+use App\Form\DocumentType;
 
 
 
@@ -29,7 +30,7 @@ class CompteRenduType extends AbstractType
                 ],
             ])
             ->add('documents', CollectionType::class, [
-                'entry_type' => DocumentType::class,
+                'entry_type' => DocumentType::class, 
                 'allow_add' => true,
                 'allow_delete' => true,
                 'by_reference' => false,

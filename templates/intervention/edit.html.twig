@@ -199,7 +199,7 @@ document.addEventListener('click', (e) => {
     if (e.target && e.target.classList.contains('remove-existing-document')) {
         const item = e.target.closest('.document-item');
         item.remove();
-        // si tu veux, tu peux ajouter un champ hidden pour signaler la suppression côté serveur
+        // si je veux, je peux ajouter un champ hidden pour signaler la suppression côté serveur
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'documents_delete[]';

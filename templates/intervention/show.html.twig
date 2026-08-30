@@ -1,129 +1,88 @@
 {% extends 'base.html.twig' %}
-{% block title %}Détails de l'intervention
-{% endblock %}
+
+{% block title %}Détails de l'intervention{% endblock %}
 
 {% block body %}
-	<div class="container mt-4 p-4 bg-white ">
 
-		<div class="d-flex justify-content-between align-items-center mb-4 no-print">
-			<h5>Détails de l'intervention</h5>
-			<!--bouton pour revenir à l'accueil  -->
-			<li style="display: inline; margin: 0 15px;">
-				<a href="{{ path('app_home') }}">← Retour à l'accueil</a>
-			</li>
-			<!-- Bouton pour modifier l'intervention -->
-			<li style="display: inline; margin: 0 15px;">
-				<a href="{{ path('app_intervention_edit', {'id': intervention.id}) }}" class="btn btn-primary">Modifier</a>
+<div class="container mt-4 p-4 bg-white">
 
-			</li>
-			<a href="#" onclick="window.print()" class="btn btn-outline-primary">
-				🖨️ Imprimer / PDF
-			</a>
-		</div>
+    {# HEADER #}
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h5>Détails de l'intervention</h5>
 
-		<div class="card p-4  mb-4">
-			<div
-				class="row g-5">
-				<!-- Colonne gauche -->
-				<div class="col-md-6 ">
-					<h5>Informations générales</h5>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_home') }}" class="btn btn-primary"> Retour à l'accueil</a>
+            <a href="{{ path('app_intervention_edit', {'id': intervention.id}) }}" class="btn btn-primary">Modifier</a>
+            <button onclick="window.print()" class="btn btn-outline-primary">🖨️ PDF</button>
+        </div>
+    </div>
 
-					<h3>
-						<strong>Référence :</strong>
-						{{ intervention.reference }}</h3>
-					<h3>
-						<strong>Client :</strong>
-						{{ intervention.clientNom }}</h3>
-					<h3>
-						<strong>Adresse :</strong>
-						{{ intervention.adresse }}</h3>
+    {# INFOS INTERVENTION #}
+    <div class="card p-4 mb-4">
+        <div class="row g-4">
 
-				</div>
+            <div class="col-md-6">
+                <h5>Informations</h5>
 
-				<!-- Colonne droite -->
-				<div class="col-md-6">
-					<h5>Planification</h5>
+                <p><strong>Référence :</strong> {{ intervention.reference }}</p>
+                <p><strong>Client :</strong> {{ intervention.clientNom }}</p>
+                <p><strong>Adresse :</strong> {{ intervention.adresse }}</p>
+            </div>
 
-					<h3>
-						<strong>Technicien :</strong>
-						{{ intervention.technicien.nom ?? 'Non attribué' }}
-					</h3>
+            <div class="col-md-6">
+                <h5>Planification</h5>
 
-					<h3>
-						<strong>Date :</strong>
-						{{ intervention.dateIntervention ? intervention.dateIntervention|date('d/m/Y') : 'Non définie' }}
-					</h3>
+                <p><strong>Technicien :</strong> {{ intervention.technicien.nom ?? '-' }}</p>
+                <p><strong>Date :</strong> {{ intervention.dateIntervention ? intervention.dateIntervention|date('d/m/Y') : '-' }}</p>
 
-					<h3>
-						<strong>Heure :</strong>
-						{% if intervention.heureDebut and intervention.heureFin %}
-							{{ intervention.heureDebut|date('H:i') }}
-							-
-							{{ intervention.heureFin|date('H:i') }}
-						{% else %}
-							Non définie
-						{% endif %}
-					</h3>
-				</div>
-			</div>
-		</div>
+                <p>
+                    <strong>Heure :</strong>
+                    {% if intervention.heureDebut and intervention.heureFin %}
+                        {{ intervention.heureDebut|date('H:i') }} - {{ intervention.heureFin|date('H:i') }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </p>
+            </div>
 
-		<!-- DEMANDE EN PLEINE LARGEUR -->
-		<div class="card p-4  mb-4">
-			<h5>Demande</h5>
-			<p class="mb-0">{{ intervention.demande }}</p>
-		</div>
+        </div>
+    </div>
 
-		<div class="intervention" data-date="{{ intervention.dateIntervention ? intervention.dateIntervention|date('Y-m-d') : '' }}" data-start="{{ intervention.heureDebut ? intervention.heureDebut|date('H:i:s') : '' }}" data-end="{{ intervention.heureFin ? intervention.heureFin|date('H:i:s') : '' }}"></div>
-	</div>
-	<!-- Compte rendu border-top:1px solid #ccc;-->
-	<div class="container mt-4 p-4 bg-white">
-		<h5>
-			Compte rendu / Détails</h5>
-		<div style="min-height:100mm; padding:10px; overflow:auto;">
-			{% if intervention.detail %}
-				<p style="white-space: pre-wrap;">{{ intervention.detail }}</p>
-			{% else %}
-				<div class="text-muted fst-italic">
-					<p>Espace réservé pour le compte rendu manuscrit ou saisi sur tablette.</p>
-					<p style="color:#999;">(Ce champ sera imprimé vide sur la version PDF)</p>
-				</div>
-			{% endif %}
-		</div>
-	</div>
+    {# DEMANDE #}
+    <div class="card p-4 mb-4">
+        <h5>Demande</h5>
+        <p class="mb-0">{{ intervention.demande ?: '-' }}</p>
+    </div>
 
-<!-- DOCUMENTS LIÉS À L’INTERVENTION -->
+</div>
+
+{# ========================= #}
+{# DOCUMENTS INTERVENTION    #}
+{# ========================= #}
+
+<div class="container">
 <div class="card p-4 mb-4 no-print">
-    <h5>Documents liés à l’intervention</h5>
+    <h5>Documents</h5>
 
     {% if intervention.documents|length > 0 %}
 
-        {% set documentsByType = {} %}
+        {% set grouped = {} %}
 
-        {# Regroupement par type #}
         {% for doc in intervention.documents %}
-            {% set typeKey = doc.type.value %}
-            {% set documentsByType = documentsByType|merge({
-                (typeKey): (documentsByType[typeKey]|default([]))|merge([doc])
+            {% set key = doc.type.value %}
+            {% set grouped = grouped|merge({
+                (key): (grouped[key]|default([]))|merge([doc])
             }) %}
         {% endfor %}
 
-        {# Affichage #}
-        {% for type, docs in documentsByType %}
+        {% for type, docs in grouped %}
             <div class="mb-3">
-                <h6 class="text-primary">
-                     {{ docs[0].type.label }}
-                </h6>
+                <h6 class="text-primary">{{ docs[0].type.label }}</h6>
 
-                <ul class="list-unstyled ms-3 mb-0">
+                <ul class="list-unstyled ms-3">
                     {% for doc in docs %}
-                        <li class="mb-1">
-                            
-                            <a href="{{ asset(doc.path) }}"
-                               target="_blank"
-                               class="open-doc-modal"
-                               data-title="{{ doc.originalName ?: doc.filename }}"
-                               data-url="{{ asset(doc.path) }}">
+                        <li>
+                            <a href="{{ asset(doc.path) }}" target="_blank">
                                 {{ doc.originalName ?: doc.filename }}
                             </a>
                         </li>
@@ -133,155 +92,76 @@
         {% endfor %}
 
     {% else %}
-        <p class="text-muted fst-italic mb-0">
-            Aucun document lié à cette intervention.
-        </p>
+        <p class="text-muted">Aucun document</p>
     {% endif %}
 </div>
-<!--Carte : Comptes rendus -->
+</div>
+
+{# ========================= #}
+{# COMPTE RENDUS            #}
+{# ========================= #}
+
+<div class="container">
+
 <div class="card p-4 mb-4 no-print">
-    <h5> Comptes rendus</h5>
+    <div class="d-flex justify-content-between align-items-center">
+        <h5>Comptes rendus</h5>
+
+        <button class="btn btn-outline-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#addCompteRenduModal">
+            + Ajouter
+        </button>
+    </div>
 
     {% if intervention.compteRendus is empty %}
-        <p class="text-muted fst-italic">
-            Aucun compte rendu enregistré pour cette intervention.
-        </p>
-    {% else %}
-        {% for cr in intervention.compteRendus %}
-            <div class="border rounded p-3 mb-3">
 
-                <div class="d-flex justify-content-between mb-2">
-                    <strong>
-                        {{ cr.dateCreation|date('d/m/Y H:i') }}
-                    </strong>
+        <p class="text-muted mt-3">Aucun compte rendu</p>
+
+    {% else %}
+
+        {% for cr in intervention.compteRendus %}
+
+            <div class="border rounded p-3 mt-3">
+
+                <div class="d-flex justify-content-between">
+                    <strong>{{ cr.dateCreation|date('d/m/Y H:i') }}</strong>
                     <span class="badge bg-secondary">
                         {{ cr.technicien.nom }}
                     </span>
                 </div>
 
-                <div class="mb-3" style="white-space: pre-wrap;">
+                <div class="mt-2" style="white-space: pre-wrap;">
                     {{ cr.description }}
                 </div>
 
-                {# Documents liés au compte rendu #}
-                {% if cr.documents|length > 0 %}
-                    <div class="mt-2">
-                        <strong>📎 Documents :</strong>
-                        <ul class="mt-1">
-                            {% for doc in cr.documents %}
-                                <li>
-                                    <a href="{{ asset(doc.path) }}"
-                                       target="_blank">
-                                        {{ doc.originalName }}
-                                    </a>
-                                    <span class="text-muted">
-                                        ({{ doc.type.label }})
-                                    </span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                {% if cr.documents is not empty %}
+                    <hr>
+
+                    <h6>Documents</h6>
+
+                    <ul class="list-unstyled">
+                        {% for doc in cr.documents %}
+                            <li>
+                                <a href="{{ asset(doc.path) }}" target="_blank">
+                                    📎 {{ doc.originalName ?: doc.filename }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 {% endif %}
 
             </div>
+
         {% endfor %}
+
     {% endif %}
 </div>
 
-<!--MODAL AJOUTER UN COMPTE RENDU   -->
-<!-- Modal Ajouter Compte Rendu -->
-<div class="modal fade" id="addCompteRenduModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Ajouter / Modifier un compte rendu</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-
-            <form id="compteRenduForm" method="POST" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <!-- Technicien (non modifiable) -->
-                    <div class="mb-3">
-                        <label class="form-label">Technicien</label>
-                        <input type="text" class="form-control" value="{{ intervention.technicien.nom ?? 'Non attribué' }}" disabled>
-                    </div>
-
-                    <!-- Description / compte rendu -->
-                    <div class="mb-3">
-                        <label class="form-label">Compte rendu</label>
-                        <textarea name="description" class="form-control" rows="6"
-                                  placeholder="Décrire l’intervention, les constats, les actions réalisées…"></textarea>
-                    </div>
-
-                    <!-- Documents associés -->
-                    <div class="mb-3">
-                        <label class="form-label">Documents (PDF / Images)</label>
-                        <input type="file" name="documents[]" class="form-control" multiple>
-                        <small class="text-muted">Vous pouvez ajouter plusieurs fichiers.</small>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                </div>
-
-                <!-- Champs cachés -->
-                <input type="hidden" name="intervention_id" value="{{ intervention.id }}">
-            </form>
-        </div>
-    </div>
 </div>
 
-<!-- Bouton pour ouvrir la modal -->
-<button class="btn btn-outline-primary mb-3" 
-        data-bs-toggle="modal" 
-        data-bs-target="#addCompteRenduModal">
-    + Ajouter un compte rendu
-</button>
+{# ========================= #}
+{# MODAL                    #}
+{# ========================= #}
 
-	<!-- je cache cette partie pour l'instant
-			 Documents liés 
-			<div class="card p-4 shadow-sm">
-				<h5>📎 Documents liés</h5>
-	
-				{% if documents|length > 0 %}
-					<div class="row">
-						{% for document in documents %}
-							<div class="col-md-6 mb-3">
-								<div style="max-height:100mm; overflow:hidden; border:1px solid #ddd; border-radius:6px;">
-									<iframe src="{{ asset('uploads/documents/' ~ document.filename) }}" width="100%" height="200" style="border:none;"></iframe>
-								</div>
-							</div>
-						{% endfor %}
-					</div>
-				{% else %}
-					<p class="text-muted fst-italic">Aucun document lié à cette intervention.</p>
-				{% endif %}
-			</div>
-			 Afficher le texte extrait
-			<div class="card p-3 mt-4">
-				<h5>
-					Texte extrait automatiquement</h5>
-	
-				{% if documents|length > 0 %}
-					{% for document in documents %}
-						<div class="mb-3">
-							<h6 class="text-primary">{{ document.filename }}</h6>
-	
-							{% if document.extractedText %}
-								<textarea class="form-control" rows="8" readonly style="font-size: 0.9rem;">
-									{{ document.extractedText }}
-								</textarea>
-							{% else %}
-								<p class="text-muted fst-italic">Aucun texte n’a été extrait de ce fichier.</p>
-							{% endif %}
-						</div>
-					{% endfor %}
-				{% else %}
-					<p class="text-muted fst-italic">Aucun document disponible pour cette intervention.</p>
-				{% endif %}
-			</div>
-	
-		</div>-->
 {% endblock %}

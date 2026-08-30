@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau compte rendu{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <h2>Ajouter un compte rendu</h2>
+
+    {{ form_start(form, {
+        'attr': {
+            'enctype': 'multipart/form-data'
+        }
+    }) }}
+
+        {{ form_row(form.description) }}
+
+      <h5 class="mt-4">Documents associés</h5>
+
+<div id="documents-wrapper"
+     data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}">
+
+    {% for doc in form.documents %}
+        <div class="document-item border rounded p-3 mb-3">
+            {{ form_row(doc.type) }}
+            {{ form_row(doc.file) }}
+
+            <div class="preview mt-2">
+                <p class="text-muted fst-italic">
+                    Aperçu du document ici après sélection.
+                </p>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm remove-document">
+                Supprimer
+            </button>
+        </div>
+    {% endfor %}
+
+</div>
+
+<button type="button"
+        id="add-document"
+        class="btn btn-outline-secondary mt-2">
+    + Ajouter un document
+</button>
+
+        <button class="btn btn-primary mt-3">
+            Enregistrer
+        </button>
+
+    {{ form_end(form) }}
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const collectionHolder = document.getElementById('documents-wrapper');
+    const addButton = document.getElementById('add-document');
+
+    if (!collectionHolder) {
+        return;
+    }
+
+    collectionHolder.dataset.index =
+        collectionHolder.querySelectorAll('.document-item').length;
+
+    addButton.addEventListener('click', () => {
+
+        const prototype = collectionHolder.dataset.prototype;
+        const index = collectionHolder.dataset.index;
+
+        const newForm = prototype.replace(/__name__/g, index);
+
+        collectionHolder.dataset.index++;
+
+        const item = document.createElement('div');
+
+        item.classList.add(
+            'document-item',
+            'border',
+            'rounded',
+            'p-3',
+            'mb-3'
+        );
+
+        item.innerHTML = newForm + `
+            <div class="preview mt-2">
+                <p class="text-muted fst-italic">
+                    Aperçu du document ici après sélection.
+                </p>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm remove-document">
+                Supprimer
+            </button>
+        `;
+
+        collectionHolder.appendChild(item);
+    });
+
+    document.addEventListener('click', e => {
+
+        if (e.target.classList.contains('remove-document')) {
+            e.target.closest('.document-item').remove();
+        }
+
+    });
+
+    document.addEventListener('change', e => {
+
+        if (!e.target.matches('.document-item input[type="file"]')) {
+            return;
+        }
+
+        const input = e.target;
+        const file = input.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const preview =
+            input.closest('.document-item')
+                 .querySelector('.preview');
+
+        const reader = new FileReader();
+
+        reader.onload = event => {
+
+            if (file.type === 'application/pdf') {
+
+                preview.innerHTML = `
+                    <iframe
+                        src="${event.target.result}"
+                        width="100%"
+                        height="400">
+                    </iframe>
+                `;
+
+            } else if (file.type.startsWith('image/')) {
+
+                preview.innerHTML = `
+                    <img src="${event.target.result}"
+                         class="img-fluid">
+                `;
+            }
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+});
+</script>
+{% endblock %}

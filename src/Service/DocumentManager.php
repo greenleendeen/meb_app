@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Document;
 use App\Entity\Intervention;
+use App\Entity\CompteRendu;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -22,12 +23,16 @@ class DocumentManager
     public function handleUploadedDocument(
     Document $document,
     UploadedFile $file,
-    ?Intervention $intervention
+    ?Intervention $intervention,
+    ?CompteRendu $compteRendu,
 ): void {
     $this->uploadFile($document, $file);
 
     if ($intervention !== null) {
         $document->setIntervention($intervention);
+    }
+     if ($compteRendu !== null) {
+        $document->setCompteRendu($compteRendu);
     }
 
     $document->setUploadedAt(new \DateTimeImmutable());

@@ -44,20 +44,24 @@
 
 					{# Documents liés #}
 					<td>
-						{% if intervention.documents|length > 0 %}
-							<ul class="list-unstyled mb-0">
-								{% for doc in intervention.documents %}
-									<li>
-										<a href="#" class="open-pdf" data-url="{{ asset(doc.path) }}" data-title="{{ doc.originalName ?: 'Document joint' }}">
-											{{ doc.originalName ?: 'Document joint' }}
-										</a>
-									</li>
-								{% endfor %}
-							</ul>
-						{% else %}
-							<span class="text-muted fst-italic">Aucun document</span>
-						{% endif %}
-					</td>
+    {% if intervention.documents|length > 0 %}
+        {{ intervention.documents|length }} document(s)
+
+        <div class="small text-muted">
+            {% for doc in intervention.documents|slice(0, 2) %}
+                <div>
+                    {{ doc.originalName ?: 'Document' }}
+                </div>
+            {% endfor %}
+
+            {% if intervention.documents|length > 2 %}
+                <div>… +{{ intervention.documents|length - 2 }} autres</div>
+            {% endif %}
+        </div>
+    {% else %}
+        <span class="text-muted fst-italic">Aucun document</span>
+    {% endif %}
+</td>
 
 					{# Actions #}
 					<td>

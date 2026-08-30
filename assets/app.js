@@ -1,12 +1,25 @@
 // assets/app.js
 
+/**
+ * ==================================================
+ * POINT D'ENTRÉE PRINCIPAL
+ * --------------------------------------------------
+ * Charge :
+ * - Bootstrap
+ * - Stimulus
+ * - Calendrier
+ * - Carte Leaflet
+ * - Events globaux
+ * ==================================================
+ */
+
 // Styles
 import "../assets/styles/app.scss";
 import "../assets/styles/fullcalendar/fullcalendar.scss";
 
 // Bootstrap (modales, tooltips, etc.)
+import "bootstrap/dist/js/bootstrap.bundle.min";
 import { Modal } from "bootstrap";
-
 //import { Modal, Tooltip, Toast } from "bootstrap";
 
 //import 'bootstrap/dist/css/bootstrap.min.css';
@@ -234,3 +247,19 @@ function buildTechnicienSelect(selectedId = null) {
 function toDatetimeLocal(dateStr) {
     return dateStr.slice(0, 16);
 }
+
+//////// --- LEAFLET
+import { initMap } from "./js/map/leaflet_map";
+
+document.addEventListener("DOMContentLoaded", () => {
+    initMap();
+});
+document.addEventListener("click", (e) => {
+    const btn = e.target.closest('[data-map-modal]');
+    if (!btn) return;
+
+    const modal = new bootstrap.Modal(document.getElementById('mapModal'));
+    modal.show();
+
+    openMapModal();
+});

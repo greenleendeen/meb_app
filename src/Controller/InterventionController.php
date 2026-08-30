@@ -63,7 +63,8 @@ final class InterventionController extends AbstractController
                     $this->documentManager->handleUploadedDocument(
                         $document,
                         $file,
-                        $intervention
+                        $intervention,
+                        null
                     );
                 }
             }
@@ -126,7 +127,7 @@ final class InterventionController extends AbstractController
 
                 // CAS 2 : nouveau document + fichier → OK
                 if ($document->getId() === null && $file instanceof UploadedFile) {
-                    $this->documentManager->handleUploadedDocument($document, $file, $intervention);
+                    $this->documentManager->handleUploadedDocument($document, $file, $intervention, null);
                     $em->persist($document);
                 }
 
@@ -174,36 +175,74 @@ final class InterventionController extends AbstractController
     }
 
     /** Nouveau compte-rendu */
-    #[Route('/intervention/{id}/compte-rendu/new', name: 'app_compte_rendu_new')]
-    public function newCompteRendu(
-        Intervention $intervention,
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
-        $compteRendu = new CompteRendu();
-        $compteRendu->setIntervention($intervention);
+   /** Nouveau compte-rendu */
+#[Route('/{id}/compte-rendu/new', name: 'app_compte_rendu_new', methods: ['GET', 'POST'])]
+public function newCompteRendu(
+    Intervention $intervention,
+    Request $request,
+    EntityManagerInterface $em
+): Response {
+
+    $compteRendu = new CompteRendu();
+    $compteRendu->setIntervention($intervention);
+
+    if ($this->getUser() instanceof User) {
         $compteRendu->setTechnicien($this->getUser());
+    }
 
-        $form = $this->createForm(CompteRenduType::class, $compteRendu);
-        $form->handleRequest($request);
+    $form = $this->createForm(
+        CompteRenduType::class,
+        $compteRendu
+    );
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            foreach ($compteRendu->getDocuments() as $doc) {
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        foreach ($compteRendu->getDocuments() as $doc) {
+
+            $file = $doc->getFile();
+
+            if ($file instanceof UploadedFile) {
+
+                $this->documentManager->handleUploadedDocument(
+                    $doc,
+                    $file,
+                    $intervention,
+                    $compteRendu
+                );
+
                 $doc->setIntervention($intervention);
                 $doc->setCompteRendu($compteRendu);
+
+                $em->persist($doc);
             }
-
-            $em->persist($compteRendu);
-            $em->flush();
-
-            return $this->redirectToRoute('app_intervention_show', ['id' => $intervention->getId()]);
         }
 
-        return $this->render('compte_rendu/new.html.twig', [
-            'intervention' => $intervention,
-            'form' => $form,
-        ]);
+        $em->persist($compteRendu);
+        $em->flush();
+
+        $this->addFlash(
+            'success',
+            'Compte rendu enregistré avec succès.'
+        );
+
+        return $this->redirectToRoute(
+            'app_intervention_show',
+            [
+                'id' => $intervention->getId()
+            ]
+        );
     }
+
+    return $this->render(
+        'compte_rendu/new.html.twig',
+        [
+            'intervention' => $intervention,
+            'form' => $form->createView(),
+        ]
+    );
+}
 
     /** Mise à jour depuis le calendrier */
     #[Route('/intervention/{id}/update-from-calendar', name: 'update_from_calendar', methods: ['POST'])]

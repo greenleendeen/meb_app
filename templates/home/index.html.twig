@@ -43,7 +43,7 @@
 
 					<!-- LOGO -->
 					<div class="ms-3">
-						<img src="{{ asset('images/logo_vert.png') }}" alt="Logo"  width="150" ">
+						<img src="{{ asset('images/logo_vert.png') }}" alt="Logo" width="150" ">
 					</div>
 
 				</nav>
@@ -53,44 +53,41 @@
 
 
 		<!-- MAIN -->
-		<div
-			class="dashboard-main flex-grow-1 d-flex">
+		<div class="dashboard-main flex-grow-1 d-flex">
 
 			<!-- SIDEBAR 
-			<nav class="sidebar p-3 d-flex flex-column align-items-center">
-
-				<a href="{{ path('app_calendar') }}" class="nav-link text-white mb-4 text-center">
-					{{ app.request.attributes.get('_route') starts with 'app_calendar' ? 'active' }}
-
-					<i class="bi bi-calendar3 fs-4"></i><br>
-					Calendrier
-				</a>
-
-				<a href="{{ path('app_intervention_index') }}" class="nav-link text-white mb-4 text-center">
-					{{ app.request.attributes.get('_route') starts with 'app_intervention_index' ? 'active' }}
-					<i class="bi bi-list-task fs-4"></i><br>
-					Interventions
-				</a>
-
-				<a href="{{ path('app_intervention_search') }}" class="nav-link text-white mb-4 text-center
-						   {{ app.request.attributes.get('_route') == 'app_intervention_search' ? 'active' }}">
-
-					<i class="bi bi-search fs-4"></i><br>
-					Recherche
-				</a>
-
-				<a href="#" class="nav-link text-white mt-auto text-center">
-					<i class="bi bi-gear fs-4"></i><br>
-					Paramètres
-				</a>
-
-			</nav> -->
+												<nav class="sidebar p-3 d-flex flex-column align-items-center">
+									
+													<a href="{{ path('app_calendar') }}" class="nav-link text-white mb-4 text-center">
+														{{ app.request.attributes.get('_route') starts with 'app_calendar' ? 'active' }}
+									
+														<i class="bi bi-calendar3 fs-4"></i><br>
+														Calendrier
+													</a>
+									
+													<a href="{{ path('app_intervention_index') }}" class="nav-link text-white mb-4 text-center">
+														{{ app.request.attributes.get('_route') starts with 'app_intervention_index' ? 'active' }}
+														<i class="bi bi-list-task fs-4"></i><br>
+														Interventions
+													</a>
+									
+													<a href="{{ path('app_intervention_search') }}" class="nav-link text-white mb-4 text-center
+															   {{ app.request.attributes.get('_route') == 'app_intervention_search' ? 'active' }}">
+									
+														<i class="bi bi-search fs-4"></i><br>
+														Recherche
+													</a>
+									
+													<a href="#" class="nav-link text-white mt-auto text-center">
+														<i class="bi bi-gear fs-4"></i><br>
+														Paramètres
+													</a>
+									
+												</nav> -->
 
 
 			<!-- ZONE PRINCIPALE -->
-			<main class="flex-grow-1 p-4 bg-light">
-
-				<div
+				<main class="flex-grow-1 p-4 bg-light"> <div
 					class="row g-4">
 
 					<!-- CALENDRIER -->
@@ -121,6 +118,10 @@
 								<div id="map" style="height:400px;background:#eaeaea;border-radius:8px;"></div>
 
 							</div>
+
+							<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mapModal">
+								Agrandir la carte
+							</button>
 						</div>
 					</div>
 
@@ -136,6 +137,24 @@
 			Application de gestion d'interventions
 		</footer>
 
+	</div>
+
+	<!-- MODALE CARTE -->
+	<div class="modal fade" id="mapModal" tabindex="-1">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h5 class="modal-title">Carte des interventions</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="modal-body">
+					<div id="mapModalContainer" style="height:70vh;"></div>
+				</div>
+
+			</div>
+		</div>
 	</div>
 
 {% endblock %}

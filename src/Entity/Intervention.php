@@ -15,6 +15,16 @@ use App\Entity\Document;
     fields: ['reference'],
     message: 'Une intervention avec cette référence existe déjà.'
 )]
+
+#[ORM\Table(
+    name: 'intervention',
+    indexes: [
+        new ORM\Index(name: 'idx_reference', columns: ['reference']),
+        new ORM\Index(name: 'idx_adresse', columns: ['adresse']),
+        new ORM\Index(name: 'idx_client_nom', columns: ['client_nom'])
+    ]
+)]
+
 class Intervention
 {
     #[ORM\Id]
