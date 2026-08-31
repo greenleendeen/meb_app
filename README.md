@@ -57,8 +57,7 @@ Aucune donnée réelle de client ou document réel n'est nécessaire pour faire 
 La base fournie contient la structure nécessaire à l'application ainsi que des comptes de démonstration fictifs.
 Installation
 1. Cloner le projet
-git clone [URL DU DEPOT]
-cd meb_app
+git clone [https://github.com/greenleendeen/meb_app.git]
 2. Installer les dépendances PHP
 composer install
 3. Installer les dépendances JavaScript
